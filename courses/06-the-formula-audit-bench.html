@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Session 6 of 6. A formula engine in the page runs Ferncastle's three questions over 1,565 real derived order rows, five ways, and counts what each way gets silently wrong: rows matched to the wrong customer, rows hidden by IFERROR, rows counted twice. With an anti-lever and a break button.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The formula-audit bench - learn excel and sheets with phoebe">
+<meta property="og:description" content="Session 6 of 6. 1,266 rows silently wrong on the naive build, 0 on the audited one, computed in your browser.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/courses/06-the-formula-audit-bench.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The formula-audit bench - learn excel and sheets with phoebe">
+<meta name="twitter:description" content="Session 6 of 6. Five rungs, two traps, three questions, every number computed from real derived rows.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Session 6 · The formula-audit bench - learn excel and sheets with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-excel-sheets-with-phoebe</a> / Session 6 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Excel &amp; Sheets with Phoebe · Session 6 of 6</div>
+    <h1>The <span class="accent">formula-audit</span> bench</h1>
+    <p class="sub">Every trap from the first five sessions, in one place, on real rows. A small formula engine runs in this page: VLOOKUP exact and approximate, XLOOKUP, INDEX and MATCH, TRIM, VALUE, DATEVALUE, SUMIFS, COUNTIFS and a pivot. It answers Imogen's three questions five ways, from the build most people would hand in to the audited one, and counts what each way gets wrong without a single error showing. Then it hands you two buttons that make things worse.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Bench night</span>
+      <span class="chip audience">Analysts who already live in a spreadsheet</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-14 · The ladder and its counters</span>
+      <span class="a3" style="flex:6">14-40 · Build-along: the bench, rung by rung</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where we start</h2>
+    </div>
+    <p class="lede">Ferncastle is constructed; its order export is not. The bench holds the same derived, masked Olist rows you opened in session 1: 1,565 order rows (1,508 orders, one row per payment), 1,370 customers in 26 Brazilian states, with the four traps the export really carries. Customer IDs stored as text on 94 rows, a delivery date that is day-first text on every row, a customers table that is not sorted, and orders that repeat because they were paid twice. Imogen's questions are the same as in session 1: revenue by customer state, orders per customer, and the late-delivery share. The truth column is computed by a separate clean path in the same engine, and an independent Python run agrees with every number.</p>
+
+    <div class="legend">
+      <span class="pill">🎫 Clear all three quiz questions to stamp your passport</span>
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">★ Build-along = run the bench yourself</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The five-rung audit you can run on any lookup-and-pivot build; three counters that make silent errors countable (wrong rows, missing rows, double counts) plus the control gap that catches all three; the proof that approximate match never helps; and the difference between a check that cleans one side of a join and an audit that cleans both and reconciles.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the ladder and its counters</span>
+      <h2>Five builds, one set of rows</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">Each rung is a build an analyst could reasonably hand in. Rung 1 is VLOOKUP with the fourth argument left out, which both apps treat as approximate match. Rung 2 sets it to FALSE. Rung 3 cleans the order-side IDs with VALUE(TRIM()) and rebuilds the text dates. Rung 4 keeps only the first row of each order. Rung 5 cleans the table side too and refuses to report until revenue by state adds up to the distinct-order total.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Five hand-drawn bars, one per rung, showing order rows the build gets wrong without an error. Rung 1 naive approximate match: 1,458 rows, made of 1,266 matched to the wrong customer, 135 missing and 57 double counted. Rung 2 exact match: 151 rows, 94 missing and 57 double. Rung 3 with type cleaning: 57 rows, all double counts. Rung 4 with the duplicate check: 0 rows and a control gap of R$ 0.00. Rung 5 audited: 0 rows, and it also survives the break button.">
+        <defs>
+          <filter id="e6aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+        </defs>
+        <style>
+          .e6aH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e6aL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e6aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .e6aB { font: 800 12px Inter, sans-serif; fill: #075C07; }
+          .e6aS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e6aN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e6aSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="260" y="70" width="480" height="30" rx="4" transform="rotate(-0.3 500 85)" fill="#0B7F0A"/>
+          <rect x="260" y="122" width="50" height="30" rx="4" fill="#0B7F0A"/>
+          <rect x="260" y="174" width="19" height="30" rx="4" fill="#0B7F0A"/>
+          <path d="M260 226 L260 256"/>
+          <path d="M260 278 L260 308"/>
+          <rect x="740" y="266" width="110" height="52" rx="10" transform="rotate(1 795 292)" fill="#FFD84D"/>
+        </g>
+
+        <text class="e6aH" x="30" y="40">ORDER ROWS THE BUILD GETS WRONG, WITH NO ERROR SHOWING</text>
+        <text class="e6aL" x="240" y="90" text-anchor="end">1 · naive (approximate)</text>
+        <text class="e6aL" x="240" y="142" text-anchor="end">2 · exact match</text>
+        <text class="e6aL" x="240" y="194" text-anchor="end">3 · + type cleaning</text>
+        <text class="e6aL" x="240" y="246" text-anchor="end">4 · + duplicate check</text>
+        <text class="e6aL" x="240" y="298" text-anchor="end">5 · audited</text>
+        <text class="e6aW" x="274" y="90">1,458 rows: 1,266 wrong, 135 missing, 57 double</text>
+        <text class="e6aL" x="320" y="142">151 rows: 94 missing, 57 double</text>
+        <text class="e6aL" x="289" y="194">57 rows: every one a double count</text>
+        <text class="e6aB" x="272" y="246">0 rows, control gap R$ 0.00</text>
+        <text class="e6aB" x="272" y="298">0 rows, gap R$ 0.00</text>
+        <text class="e6aL" x="756" y="288">survives the</text>
+        <text class="e6aL" x="756" y="304">break button</text>
+
+        <text class="e6aN" x="30" y="336">Computed by exs-live.js from 1,565 Ferncastle order rows; Python agrees on all 217 numbers. Bars to scale.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - rungs 4 and 5 look identical on clean data; the only way to tell them apart is to break something, which is what the second button is for</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three counters and one gap<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Rows silently wrong</strong> are rows that found a customer, just not theirs, so their revenue lands in the wrong state. <strong>Rows missing</strong> found nobody; the lookup returned #N/A and IFERROR turned it into a blank, which the pivot ignores. <strong>Double counts</strong> are the extra rows of an order paid in more than one part. A fourth counter, <strong>wrong late flags</strong>, counts orders whose late or on-time label is wrong because the delivery date was read as text or with day and month swapped.</p>
+        <p>The <strong>control gap</strong> needs none of that bookkeeping: revenue of the distinct orders minus revenue the pivot attributed to a state. It is positive when rows went missing, negative when rows were doubled, and only R$ 0.00 is a pass. On rung 3 the gap is minus R$ 6,021.59, the exact double count you found by hand in session 1.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the bench measures, and what it models<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Measured:</strong> every count and total, computed from the shipped rows by the engine in this page, and agreed with an independent Python implementation on all 217 numbers the bench can print (five rungs, with and without each trap). A comparison script proves it can fail by catching a planted 0.1 percent change.</p>
+        <p><strong>Modelled, and printed on the widget:</strong> approximate match is a textbook binary search over the lookup column. Microsoft says approximate match needs the first column sorted, and Google names the argument is_sorted; neither promises anything on unsorted data, so a real app on this unsorted table returns wrong rows too, but not necessarily the same wrong rows. DATEVALUE is modelled under a month-first (US) date setting, which is the setting that makes day-first text fail; Microsoft and Google both say the result depends on that setting.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>A spreadsheet in an economics argument.</strong> In 2013 Herndon, Ash and Pollin reported that Reinhart and Rogoff's widely cited 2010 analysis of public debt and growth had "coding errors, selective exclusion of available data, and unconventional weighting", and that corrected average growth for countries above 90 percent debt was 2.2 percent rather than about minus 0.1. Reinhart and Rogoff accepted the spreadsheet error and disputed how much it changed their conclusion (reported). Both things are part of the story: a range that left rows out, and a real disagreement about what the corrected numbers mean.</p>
+    </div>
+  </section>
+
+  <section class="section" id="bench">
+    <div class="section-kicker">
+      <span class="klabel">Build-along · the bench</span>
+      <h2>Run the ladder, then break it</h2>
+      <span class="tag demo">★ 22 min · everyone builds</span>
+    </div>
+    <p class="lede">The bench opens on rung 1. Read the verdict line first, then the five counters, then the three questions against the truth. Climb one rung at a time and say out loud which counter each rung fixed before you look. Then switch on the two traps, one at a time.</p>
+
+    <div id="exs-bench" data-exs="bench" data-rung="0"></div>
+
+    <div class="steps">
+      <div class="step">
+        <p><strong>Rung 1, the build most people hand in.</strong> VLOOKUP with three arguments. Revenue from SP customers prints R$ 50,868.14 against a truth of R$ 80,469.61, 1,266 rows sit in the wrong state, every one of the 26 states is off, and the late share reads 17.76 percent against 7.23. No cell shows an error.</p>
+        <div class="prompt-box good"><span class="label">★ Rung 1 · read off the bench</span>Formula   =IFERROR(VLOOKUP(B2, customers!A:C, 3), "")
+Wrong     1,266 rows    Missing 135    Double 57
+SP        R$ 50,868.14  (truth R$ 80,469.61)
+Late      17.76%        (truth 7.23%)
+Gap       R$ 11,364.04</div>
+      </div>
+      <div class="step">
+        <p><strong>Rung 2, exact match.</strong> Add FALSE. The wrong rows drop to 0, because an exact lookup either finds the right customer or finds nobody. The 94 text IDs now find nobody, so 94 rows go missing behind IFERROR. SP rises to R$ 79,323.10, close enough to look right.</p>
+        <div class="prompt-box good"><span class="label">★ Rung 2 · read off the bench</span>Formula   =IFERROR(VLOOKUP(B2, customers!A:C, 3, FALSE), "")
+Wrong     0     Missing 94     Double 57
+SP        R$ 79,323.10
+Gap       R$ 4,671.89     Late share unchanged: 17.76%</div>
+      </div>
+      <div class="step">
+        <p><strong>Rung 3, clean the types.</strong> VALUE(TRIM(B2)) turns "00427" and "427 " into the number 427, and the delivery date is rebuilt from its parts with DATE(RIGHT, MID, LEFT) instead of DATEVALUE. Missing rows go to 0, the late share to 7.03 percent, customers to 1,370. Now SP is too HIGH, R$ 83,204.30, and the gap turns negative: the double counts are all that is left.</p>
+        <div class="prompt-box good"><span class="label">★ Rung 3 · read off the bench</span>Key       =VALUE(TRIM(B2))
+Date      =DATE(RIGHT(E2,4), MID(E2,4,2), LEFT(E2,2))
+Wrong 0   Missing 0   Double 57
+SP        R$ 83,204.30     Gap  -R$ 6,021.59
+Orders per customer 1.142 (1,565 / 1,370)   truth 1.101</div>
+      </div>
+      <div class="step">
+        <p><strong>Rung 4, keep the first row of each order.</strong> The running count from session 1 filters to 1,508 rows. Every counter is 0, the gap is R$ 0.00, and all three answers match the truth: SP R$ 80,469.61, 1.101 orders per customer, 7.23 percent late (109 of 1,508).</p>
+        <div class="prompt-box good"><span class="label">★ Rung 4 · read off the bench</span>Filter    rows where COUNTIFS(A$2:A2, A2) = 1
+Rows 1,508    Wrong 0   Missing 0   Double 0
+SP        R$ 80,469.61     Gap R$ 0.00
+Late      7.23%  (109 of 1,508)</div>
+      </div>
+      <div class="step">
+        <p><strong>Switch on the anti-lever.</strong> Tick "approximate match on" and step through the rungs. No rung gets better. On the audited rung it prints 1,289 wrong rows, 44 missing, SP R$ 52,314.30 and a gap of R$ 6,876.05. Clean types and deduplication cannot rescue a search that is reading an unsorted column.</p>
+        <div class="prompt-box good"><span class="label">★ Anti-lever · audited rung, approximate on</span>Wrong 1,289   Missing 44   Double 0
+SP    R$ 52,314.30     Gap R$ 6,876.05
+States off: 26 of 26</div>
+      </div>
+      <div class="step">
+        <p><strong>Switch off the anti-lever, press the break.</strong> One customer's ID in the customers table is now text. On rung 4, the build that matched the truth a minute ago, 10 rows go missing: SP falls to R$ 80,000.26, R$ 469.35 short, and the gap says so. On rung 5 nothing moves, because it cleans the table side as well and reconciles before it reports.</p>
+        <div class="prompt-box good"><span class="label">★ Break · rung 4 against rung 5</span>Rung 4   Missing 10   SP R$ 80,000.26   Gap R$ 469.35
+Rung 5   Missing 0    SP R$ 80,469.61   Gap R$ 0.00
+Every cell on rung 4 still shows a number.</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The same three questions, answered with pipes.</strong> The <a href="https://phoebefu6.github.io/learn-command-line-with-phoebe/">Command Line course</a> opens the same Ferncastle CSVs in a shell and meets the same traps from the other side: the trailing space that splits a count, the header row that gets counted, the repeated order_id. Its bench prints its answers next to these.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the anti-lever: approximate match</span>
+      <h2>Why approximate match never helps here</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">Approximate match does not scan the column. It assumes the column is sorted and halves it: look at the middle, decide which half the value must be in, repeat. On a sorted column that is fast and right. On Ferncastle's customers table, which is in the order customers first bought, it can look straight at the right row and still walk past it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The first seven rows of the customers table, unsorted: 2307 SP, 9272 ES, 789 RJ, 3082 MS, 513 AC, 7618 SP, 2153 CE. An approximate lookup for 3082 probes row 4 first and finds 3082 itself, which is not larger, so it keeps looking to the right; probe 2 lands on 7618, too big, so it goes left; probe 3 lands on 513, not larger, and the search ends there. It returns AC, the state of customer 513, instead of MS. The right row was the first one it looked at.">
+        <defs>
+          <filter id="e6bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="67" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <marker id="e6bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e6bH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e6bA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e6bL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e6bS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e6bG { font: 800 12px Inter, sans-serif; fill: #075C07; }
+          .e6bR { font: 800 12px Inter, sans-serif; fill: #991B1B; }
+          .e6bN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e6bSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="120" y="60" width="90" height="30" fill="#FFFFFF"/>
+          <rect x="210" y="60" width="60" height="30" fill="#FFFFFF"/>
+          <rect x="120" y="90" width="90" height="30" fill="#FFFFFF"/>
+          <rect x="210" y="90" width="60" height="30" fill="#FFFFFF"/>
+          <rect x="120" y="120" width="90" height="30" fill="#FFFFFF"/>
+          <rect x="210" y="120" width="60" height="30" fill="#FFFFFF"/>
+          <rect x="120" y="150" width="90" height="30" fill="#EDF7EB"/>
+          <rect x="210" y="150" width="60" height="30" fill="#EDF7EB"/>
+          <rect x="120" y="180" width="90" height="30" fill="#FFD84D"/>
+          <rect x="210" y="180" width="60" height="30" fill="#FFD84D"/>
+          <rect x="120" y="210" width="90" height="30" fill="#FFFFFF"/>
+          <rect x="210" y="210" width="60" height="30" fill="#FFFFFF"/>
+          <rect x="120" y="240" width="90" height="30" fill="#FFFFFF"/>
+          <rect x="210" y="240" width="60" height="30" fill="#FFFFFF"/>
+          <circle cx="300" cy="165" r="11" fill="#FFFFFF"/>
+          <circle cx="300" cy="225" r="11" fill="#FFFFFF"/>
+          <circle cx="300" cy="195" r="11" fill="#FFFFFF"/>
+          <path d="M318 165 C352 170 352 215 318 223" marker-end="url(#e6bAr)"/>
+          <path d="M318 225 C340 220 340 202 318 198" marker-end="url(#e6bAr)"/>
+          <rect x="430" y="60" width="410" height="210" rx="12" transform="rotate(0.4 635 165)" fill="#FFFFFF"/>
+        </g>
+
+        <text class="e6bH" x="30" y="36">APPROXIMATE LOOKUP FOR 3082 ON AN UNSORTED COLUMN</text>
+        <text class="e6bS" x="60" y="80">row 1</text>
+        <text class="e6bS" x="60" y="110">row 2</text>
+        <text class="e6bS" x="60" y="140">row 3</text>
+        <text class="e6bS" x="60" y="170">row 4</text>
+        <text class="e6bS" x="60" y="200">row 5</text>
+        <text class="e6bS" x="60" y="230">row 6</text>
+        <text class="e6bS" x="60" y="260">row 7</text>
+        <text class="e6bL" x="200" y="80" text-anchor="end">2307</text>
+        <text class="e6bL" x="222" y="80">SP</text>
+        <text class="e6bL" x="200" y="110" text-anchor="end">9272</text>
+        <text class="e6bL" x="222" y="110">ES</text>
+        <text class="e6bL" x="200" y="140" text-anchor="end">789</text>
+        <text class="e6bL" x="222" y="140">RJ</text>
+        <text class="e6bL" x="200" y="170" text-anchor="end">3082</text>
+        <text class="e6bL" x="222" y="170">MS</text>
+        <text class="e6bL" x="200" y="200" text-anchor="end">513</text>
+        <text class="e6bL" x="222" y="200">AC</text>
+        <text class="e6bL" x="200" y="230" text-anchor="end">7618</text>
+        <text class="e6bL" x="222" y="230">SP</text>
+        <text class="e6bL" x="200" y="260" text-anchor="end">2153</text>
+        <text class="e6bL" x="222" y="260">CE</text>
+        <text class="e6bL" x="300" y="169" text-anchor="middle">1</text>
+        <text class="e6bL" x="300" y="199" text-anchor="middle">3</text>
+        <text class="e6bL" x="300" y="229" text-anchor="middle">2</text>
+        <text class="e6bA" x="450" y="86">THE THREE PROBES</text>
+        <text class="e6bL" x="450" y="112">1 · row 4 holds 3082: not larger,</text>
+        <text class="e6bS" x="466" y="128">so it looks for a later match to the right</text>
+        <text class="e6bL" x="450" y="154">2 · row 6 holds 7618: too big, go left</text>
+        <text class="e6bL" x="450" y="180">3 · row 5 holds 513: not larger, stop</text>
+        <text class="e6bR" x="450" y="212">Returns AC, the state of customer 513</text>
+        <text class="e6bG" x="450" y="238">Truth: MS. The first probe was the right row.</text>
+
+        <text class="e6bN" x="30" y="296">First seven rows of Ferncastle's customers table, in export order. Modelled search: a textbook binary search;</text>
+        <text class="e6bN" x="30" y="314">the apps promise a right answer only on sorted data, so a real app's wrong row can differ.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - approximate match is looking for the last value not larger than 3082, so finding 3082 is not a reason to stop</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The default is the trap, in both apps<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Microsoft's VLOOKUP page: if you leave range_lookup out, "the default value will always be TRUE or approximate match", and approximate match needs the first column sorted. Google's: "If is_sorted is not specified, it is TRUE by default". MATCH has the same shape; its match_type defaults to 1, the largest value less than or equal to the one you asked for. XLOOKUP is the exception: its default match mode is exact, in Excel and in Sheets, which is the strongest argument for it on any version that has it.</p>
+        <p>So the anti-lever is not a weird setting someone has to choose. It is what you get by typing three arguments. On the bench it never improves a single number on any rung, which is the property that makes it an anti-lever and not a trade-off.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The honest nuance: when approximate is right<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Approximate match exists for a real job: banding. A sorted table of thresholds (0, 50, 100, 500) and a value of 73 should return the 50 band, and only an approximate search does that in one formula. The trap is using it on a key column, where "the nearest value not larger than this ID" means nothing at all.</p>
+        <p>So the rule is not "never approximate". It is: exact for keys, always written out (FALSE, 0, or XLOOKUP's default), and approximate only on a column you have sorted on purpose and whose meaning is a threshold. On Ferncastle there is no such column, which is why the anti-lever has no good side here.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>A model that divided by a sum.</strong> JPMorgan's 2013 task force report on the London Whale losses described a value-at-risk model run through spreadsheets with manual copying and pasting, in which a formula, after subtracting an old rate from a new one, "divided by their sum instead of their average" (reported; the report itself was not reachable to read at source). Like approximate match, the formula returned a perfectly ordinary number every day.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the break button and the audited answer</span>
+      <h2>One ID stored as text</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">The break makes one small change, the kind a single paste makes: customer 8683, who lives in SP and has 10 orders in the file, is typed as text in the customers table. Rung 4 cleaned the order side of the join and not the table side, so it loses those 10 orders and keeps printing numbers. Rung 5 cleaned both sides and checks the totals, so it notices nothing because there is nothing left to notice.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels. Left, marked wrong, rung 4 under the break: the orders side holds 8683 as a number, the customers table holds 8683 as text, and the two do not match, so 10 orders become blank and SP revenue prints R$ 80,000.26 with a control gap of R$ 469.35 while every cell still shows a number. Right, marked right, the audited rung: VALUE(TRIM()) is applied to both key columns, both sides are the number 8683, the 10 orders are found, SP prints R$ 80,469.61 and the gap is R$ 0.00.">
+        <defs>
+          <filter id="e6cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="71" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+        </defs>
+        <style>
+          .e6cR { font: 800 12px Inter, sans-serif; fill: #991B1B; }
+          .e6cG { font: 800 12px Inter, sans-serif; fill: #075C07; }
+          .e6cL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e6cS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e6cX { font: 800 16px Inter, sans-serif; fill: #17221A; }
+          .e6cN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e6cSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="50" width="390" height="200" rx="12" transform="rotate(-0.4 235 150)" fill="#FEF2F2" stroke="#FCA5A5"/>
+          <rect x="70" y="124" width="100" height="32" rx="4" fill="#FFFFFF"/>
+          <rect x="250" y="124" width="100" height="32" rx="4" fill="#FFD84D"/>
+          <rect x="450" y="50" width="390" height="200" rx="12" transform="rotate(0.4 645 150)" fill="#EDF7EB" stroke="#0B7F0A"/>
+          <rect x="480" y="124" width="100" height="32" rx="4" fill="#FFFFFF"/>
+          <rect x="660" y="124" width="100" height="32" rx="4" fill="#FFFFFF"/>
+        </g>
+
+        <text class="e6cR" x="58" y="84">✗ Rung 4 under the break</text>
+        <text class="e6cS" x="58" y="108">orders side cleaned, table side not</text>
+        <text class="e6cL" x="160" y="145" text-anchor="end">8683</text>
+        <text class="e6cX" x="210" y="146" text-anchor="middle">≠</text>
+        <text class="e6cL" x="262" y="145">8683</text>
+        <text class="e6cS" x="70" y="178">number</text>
+        <text class="e6cS" x="250" y="178">text, in customers!A</text>
+        <text class="e6cL" x="58" y="206">10 orders blank: SP R$ 80,000.26</text>
+        <text class="e6cL" x="58" y="226">gap R$ 469.35, every cell a number</text>
+
+        <text class="e6cG" x="468" y="84">✓ The audited rung, same break</text>
+        <text class="e6cS" x="468" y="108">VALUE(TRIM()) on both key columns</text>
+        <text class="e6cL" x="570" y="145" text-anchor="end">8683</text>
+        <text class="e6cX" x="620" y="146" text-anchor="middle">=</text>
+        <text class="e6cL" x="750" y="145" text-anchor="end">8683</text>
+        <text class="e6cS" x="480" y="178">number</text>
+        <text class="e6cS" x="660" y="178">number</text>
+        <text class="e6cL" x="468" y="206">10 orders found: SP R$ 80,469.61</text>
+        <text class="e6cL" x="468" y="226">gap R$ 0.00: the check passes</text>
+
+        <text class="e6cN" x="30" y="276">Computed by the bench with the break on. Customer 8683 is a masked ID; the 10 orders are real derived rows.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the break proves the bench measures the join and not the tidiness of the sheet: only the build that cleans both sides keeps its answer</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why the break is on the bench<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Without it, rungs 4 and 5 print identical numbers and the audit looks like ceremony. The break separates a build that happens to be right on today's file from a build that stays right when the file changes. Cleaning the side you suspect is a fix; cleaning both sides and reconciling is an audit.</p>
+        <p>Read what the break does to the earlier rungs too. Rung 2 goes from 94 missing rows to 103, rung 3 from 0 to 10. On rung 1 it changes nothing at all, because approximate match was already returning wrong rows for that customer. A build that is broken everywhere does not get any more broken, which is one more reason a single "looks fine" never tells you much.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The audited answer, written as a checklist<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Five lines, in order, on any lookup-and-pivot build. Grain and key of every table written down (session 1). Exact match written out on every lookup (session 2). Both key columns brought to one type, and dates rebuilt from their parts rather than guessed by DATEVALUE (session 3). One row per thing you count before you count it (sessions 1 and 4). And a reconciliation that must read zero before the number leaves your hands.</p>
+        <p>IFERROR stays allowed, but only after the reconciliation passes, and with a count of how many cells it is hiding printed next to the result. A blank that nobody counted is the most expensive cell in the sheet.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Gene names that became dates.</strong> The HGNC's 2020 guidelines for human gene nomenclature (Bruford and colleagues, Nature Genetics) record that "all symbols that auto-converted to dates in Microsoft Excel have been changed": SEPT1 is now SEPTIN1, MARCH1 is now MARCHF1. A scientific naming body renamed genes rather than wait for every spreadsheet to stop guessing types. A 2016 study had reported that about a fifth of papers with supplementary Excel gene lists contained such conversions (Ziemann and colleagues, reported).</p>
+    </div>
+  </section>
+
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Before you hand in a number</h2>
+      <span class="tag exercise">30 min</span>
+    </div>
+    <ol>
+      <li><strong>Rebuild rung 4 in your own sheet.</strong> From the three Ferncastle CSVs (session 1 has the download buttons), reproduce SP revenue R$ 80,469.61 and the 7.23 percent late share. Note every place your build first disagreed with the bench and which counter it was.</li>
+      <li><strong>Then break it yourself.</strong> Type one customer ID in your customers sheet as text and watch your total. Add the control gap cell, then fix the build until the gap reads R$ 0.00 with the break still in place.</li>
+      <li><strong>Audit one real build.</strong> Pick a lookup-and-pivot sheet you or your team maintain and run the five-line checklist on it. Count the IFERRORs and how many cells each one hides.</li>
+      <li><strong>Answer it with pipes.</strong> Work through the Command Line course's bench on the same files and compare its answers with yours; where they differ, find which trap each tool tripped on.</li>
+    </ol>
+  </section>
+
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+    <p>Clear all three and session 6 gets stamped in your passport.</p>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Moving from rung 1 to rung 2 (adding FALSE) takes wrong rows from 1,266 to 0 but missing rows from 135 down to only 94. Why are rows still missing?</p>
+      <button class="qopt" type="button">A · Exact match is slower and times out on some rows</button>
+      <button class="qopt" type="button">B · 94 customer IDs in orders.csv are stored as text, so an exact lookup finds nobody for them and IFERROR hides the #N/A</button>
+      <button class="qopt" type="button">C · Those customers are not in the customers table</button>
+      <button class="qopt" type="button">D · The duplicate orders are being removed</button>
+      <p class="qwhy">Exact match either finds the right customer or nobody. The 67 zero-padded and 27 trailing-space IDs are text, the table holds numbers, so they find nobody until rung 3 applies VALUE(TRIM()). Every one of those customers is in the table.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · On clean data rungs 4 and 5 print the same answers. What does the break button show about the difference?</p>
+      <button class="qopt" type="button">A · Rung 4 cleaned only the order side, so one text ID in the table drops 10 orders (gap R$ 469.35); rung 5 cleans both sides and reconciles, so it keeps R$ 80,469.61</button>
+      <button class="qopt" type="button">B · There is no difference; rung 5 is a formality</button>
+      <button class="qopt" type="button">C · Rung 5 is slower but otherwise the same</button>
+      <button class="qopt" type="button">D · Rung 4 is better because it uses fewer formulas</button>
+      <p class="qwhy">Identical answers on one file do not mean identical builds. The break changes the file the way a single paste does, and only the build that cleans both sides of the join and checks its totals keeps the right answer.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="3">
+      <p class="qtext">3 · A colleague says approximate match is fine because "it still found most of the right states". What does the bench say?</p>
+      <button class="qopt" type="button">A · They are right; approximate match only fails on text IDs</button>
+      <button class="qopt" type="button">B · It helps on rung 1 and hurts on later rungs</button>
+      <button class="qopt" type="button">C · It is fine as long as IFERROR is used</button>
+      <button class="qopt" type="button">D · It never improves any rung; on the audited rung it puts 1,289 rows in the wrong state and leaves every one of the 26 states off, because the customers table is not sorted</button>
+      <p class="qwhy">Approximate match reads the column as if it were sorted. On an unsorted key column it returns some customer's state for most rows, which is why the cells look plausible. It is the right tool for sorted threshold bands, not for keys.</p>
+    </div>
+
+    <p class="quiz-score"></p>
+  </section>
+
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Sources covered</span>
+      <h2>What this session teaches, and where it came from</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Every number the bench prints</span><span class="note">Computed in the browser by exs-live.js from the shipped rows, and agreed on all 217 canon values with an independent Python implementation; the comparison catches a planted 0.1 percent fault</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Olist. Brazilian E-Commerce Public Dataset by Olist. Kaggle. CC BY-NC-SA 4.0</span><span class="note">Licence read from the Kaggle dataset API; Ferncastle ships derived, masked rows only (new IDs, no reviews, no zip codes)</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support: VLOOKUP, XLOOKUP, MATCH, IFERROR, DATEVALUE</span><span class="note">Omitted range_lookup is approximate; XLOOKUP's default is exact; MATCH defaults to 1; DATEVALUE depends on the system date setting</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google Docs Editors Help: VLOOKUP, XLOOKUP, DATEVALUE</span><span class="note">is_sorted is TRUE by default; XLOOKUP match_mode 0 (exact) by default; DATEVALUE formats depend on region and language settings</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Bruford, E. A. et al. (2020). Guidelines for human gene nomenclature. Nature Genetics 52, 754-758</span><span class="note">Box 3 read at source: symbols that auto-converted to dates in Excel were changed (SEPT1 to SEPTIN1, MARCH1 to MARCHF1)</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Herndon, Ash and Pollin (2013), PERI working paper 322</span><span class="note">Abstract read: coding errors, selective exclusion, weighting; 2.2 percent against about minus 0.1. Reinhart and Rogoff's reply reported</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">JPMorgan Chase Management Task Force report (2013); Ziemann et al. (2016), Genome Biology 17:177</span><span class="note">Reported: not reachable to read at source here</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">The approximate-match search and the DATEVALUE setting on the widget</span><span class="note">Modelled, and labelled on the widget: a textbook binary search; a month-first date setting</span></div>
+    </div>
+    <p class="mono" style="margin-top:14px">Every fact on this page, and its verification tier, is recorded in the course's source map.</p>
+  </section>
+
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 6 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Three counters and a gap</b><span>Rows wrong, rows missing, double counts; control gap = distinct-order revenue minus revenue by state.</span></div>
+      <div class="cheat-item"><b>Rung 1 looks finished</b><span>1,266 wrong, 135 missing, 57 double. SP R$ 50,868.14 against R$ 80,469.61. No error shown.</span></div>
+      <div class="cheat-item"><b>Exact trades wrong for missing</b><span>FALSE: wrong 0, missing 94 (the text IDs). Then VALUE(TRIM()) brings them back.</span></div>
+      <div class="cheat-item"><b>Then count orders, not payments</b><span>Rung 3 overshoots by R$ 6,021.59; the running-count filter closes it to R$ 0.00.</span></div>
+      <div class="cheat-item"><b>Approximate never helps</b><span>Audited rung with approximate on: 1,289 wrong, 26 of 26 states off.</span></div>
+      <div class="cheat-item"><b>Clean both sides, then reconcile</b><span>Break: rung 4 loses R$ 469.35 silently; the audited rung holds at gap R$ 0.00.</span></div>
+    </div>
+  </section>
+
+  <div class="callout next">
+    <span class="nx-pill">The whole path</span>
+    <p>The bench closes what session 1 opened: say what a row is, compare types as well as values, write exact match out, count each thing once, and refuse to report until two independent totals agree. Take the ladder to your own sheets, or take the same questions to <a href="https://phoebefu6.github.io/learn-sql-with-phoebe/">SQL</a> and the <a href="https://phoebefu6.github.io/learn-command-line-with-phoebe/">command line</a>, where the joins are written down instead of hidden in a lookup.</p>
+  </div>
+
+  <footer class="pagefoot">
+    <span>Session 6 of 6 · learn-excel-sheets-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="05-when-to-leave.html">← Prev: When to leave</a> &nbsp;·&nbsp; <a href="../index.html">Course home →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/exs-data.js?v=1"></script>
+<script src="../assets/exs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

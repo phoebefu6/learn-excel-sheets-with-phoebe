@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Session 1 of 6. A spreadsheet will hold anything, which is why it never warns you. Grain, one type per column, and the three quiet paths that turn a real order export into a plausible wrong number, worked on Ferncastle's 1,565 rows.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="A table is not a grid - learn excel and sheets with phoebe">
+<meta property="og:description" content="Session 1 of 6. Say what one row is before you write a formula. 1,565 rows, 1,508 orders, and why the difference matters.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/courses/01-a-table-is-not-a-grid.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A table is not a grid - learn excel and sheets with phoebe">
+<meta name="twitter:description" content="Session 1 of 6. Grain, types and the three quiet paths to a plausible wrong number.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Session 1 · A table is not a grid - learn excel and sheets with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-excel-sheets-with-phoebe</a> / Session 1 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Excel &amp; Sheets with Phoebe · Session 1 of 6</div>
+    <h1>A table is not a <span class="accent">grid</span></h1>
+    <p class="sub">A spreadsheet will hold anything you type into it: a title in a merged cell, a subtotal halfway down, an ID that is a number on one row and text on the next. That freedom is why it never warns you. Tonight we draw the line between a grid, which a person reads, and a table, which a formula reads, and we find the one sentence every analysis should start with: what is one row? Then we open a real order export with 1,565 rows and discover it holds 1,508 orders.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Foundations</span>
+      <span class="chip audience">Analysts who already live in a spreadsheet</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Grain, types, the quiet paths</span>
+      <span class="a3" style="flex:5">18-40 · Build-along: find the grain</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where we start</h2>
+    </div>
+    <p class="lede">The running case is constructed. Ferncastle is an invented online kitchenware shop. Imogen, the operations lead, wants three numbers for Monday: revenue by customer state, orders per customer, and the share of deliveries that arrived late. Dev, the analyst, will build them in a spreadsheet across six sessions. The names are invented; the order export is not. Its rows are real orders from the Brazilian E-Commerce Public Dataset by Olist, derived and masked (new IDs, no reviews, no zip codes), so customers sit in Brazilian states such as SP and RJ and money is in reais, R$. Every formula on these pages works in both Microsoft Excel and Google Sheets unless the page says otherwise.</p>
+
+    <div class="legend">
+      <span class="pill">🎫 Clear all three quiz questions to stamp your passport</span>
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">★ Build-along = do it in your own sheet</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The grain sentence, said out loud before any formula; a test that tells a table from a grid in a minute; the habit of reading a column's type as well as its values; the three quiet paths (wrong row, missing row, double row) that produce a plausible wrong number; and Ferncastle's real export opened, counted and reduced from 1,565 rows to its 1,508 orders, with the money to prove it.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers grain and keys</span>
+      <h2>One row, one thing: the grain</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">A grid is laid out for a reader: a title on top, a header that spans two rows, a blank line to breathe, a subtotal where the month changes. A table is laid out for a formula: one header row, then one row per thing, every row the same kind of thing. The kind of thing is the grain, and until you can say it in a sentence, every COUNT and SUM you write is a guess about it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two hand-drawn panels. Left, marked wrong: a grid a person reads, with a merged title cell across the top, a header, data rows, a blank row and a subtotal row inside the data; COUNTA counts the title and the subtotal as if they were orders. Right, marked right: a table a formula reads, with one header row of order_id, seq and order_value and five data rows; two of them are highlighted, both order 10002, with seq 1 and seq 2 and the same order value 129.90, because one row is one payment. A note says totals belong under the table, never inside it.">
+        <defs>
+          <filter id="e1aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e1aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+        </defs>
+        <style>
+          .e1aH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e1aL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e1aS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e1aC { font: 600 11px Inter, sans-serif; fill: #17221A; }
+          .e1aR { font: 800 12px Inter, sans-serif; fill: #991B1B; }
+          .e1aG { font: 800 12px Inter, sans-serif; fill: #075C07; }
+          .e1aN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e1aSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="50" width="390" height="200" rx="12" transform="rotate(-0.4 235 150)" fill="#FEF2F2" stroke="#FCA5A5"/>
+          <rect x="60" y="92" width="240" height="20" fill="#FFFFFF"/>
+          <rect x="60" y="112" width="80" height="20" fill="#FFFFFF"/>
+          <rect x="140" y="112" width="80" height="20" fill="#FFFFFF"/>
+          <rect x="220" y="112" width="80" height="20" fill="#FFFFFF"/>
+          <rect x="60" y="132" width="240" height="20" fill="url(#e1aHc)"/>
+          <rect x="60" y="152" width="240" height="20" fill="#FFFFFF" stroke-dasharray="4 4"/>
+          <rect x="60" y="172" width="240" height="20" fill="url(#e1aHc)"/>
+          <rect x="60" y="192" width="240" height="20" fill="#FFFFFF"/>
+
+          <rect x="450" y="50" width="390" height="200" rx="12" transform="rotate(0.4 645 150)" fill="#EDF7EB" stroke="#0B7F0A"/>
+          <rect x="470" y="92" width="80" height="20" fill="#FFFFFF"/>
+          <rect x="550" y="92" width="80" height="20" fill="#FFFFFF"/>
+          <rect x="630" y="92" width="80" height="20" fill="#FFFFFF"/>
+          <rect x="470" y="112" width="240" height="20" fill="url(#e1aHc)"/>
+          <rect x="470" y="132" width="240" height="20" fill="#FFD84D"/>
+          <rect x="470" y="152" width="240" height="20" fill="#FFD84D"/>
+          <rect x="470" y="172" width="240" height="20" fill="url(#e1aHc)"/>
+          <rect x="470" y="192" width="240" height="20" fill="url(#e1aHc)"/>
+        </g>
+
+        <text class="e1aR" x="58" y="78">✗ A grid a person reads</text>
+        <text class="e1aS" x="70" y="106">Ferncastle orders, June</text>
+        <text class="e1aC" x="70" y="126">order</text>
+        <text class="e1aC" x="150" y="126">customer</text>
+        <text class="e1aC" x="230" y="126">value</text>
+        <text class="e1aC" x="70" y="206">Subtotal</text>
+        <text class="e1aS" x="312" y="106">merged title</text>
+        <text class="e1aS" x="312" y="166">blank row</text>
+        <text class="e1aS" x="312" y="206">subtotal row</text>
+        <text class="e1aS" x="58" y="236">COUNTA counts the title and the subtotal</text>
+
+        <text class="e1aG" x="468" y="78">✓ A table a formula reads</text>
+        <text class="e1aC" x="478" y="106">order_id</text>
+        <text class="e1aC" x="558" y="106">seq</text>
+        <text class="e1aC" x="638" y="106">order_value</text>
+        <text class="e1aC" x="478" y="146">10002</text>
+        <text class="e1aC" x="558" y="146">1</text>
+        <text class="e1aC" x="638" y="146">129.90</text>
+        <text class="e1aC" x="478" y="166">10002</text>
+        <text class="e1aC" x="558" y="166">2</text>
+        <text class="e1aC" x="638" y="166">129.90</text>
+        <text class="e1aS" x="722" y="106">one header row</text>
+        <text class="e1aS" x="722" y="146">same order,</text>
+        <text class="e1aS" x="722" y="160">two payments</text>
+        <text class="e1aS" x="722" y="206">no totals</text>
+        <text class="e1aS" x="468" y="236">one row = one payment, so key = order_id + seq</text>
+
+        <text class="e1aN" x="30" y="276">Ferncastle is constructed; the rows are derived from Olist. Totals belong under the table, never inside it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the right panel is cleaner and still not one row per order; a tidy layout and a known grain are two different things</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Say the grain in one sentence<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The grain sentence has one shape: <strong>"one row of this table is one ___."</strong> Ferncastle's export comes as three files. For customers.csv the sentence is easy: one row is one customer, 1,370 of them. For items.csv it is one item line of one order, 1,749 rows. For orders.csv almost everyone writes "one row is one order", and it is wrong. One row is one <em>payment</em> of an order. An order paid partly by card and partly by voucher appears twice, with its order value repeated on both rows. That is the real structure of the Olist data the export is derived from, not a mistake someone made.</p>
+        <p>The sentence matters because every aggregate inherits it. COUNTA over orders.csv counts payments. SUM of order_value adds the same order twice whenever it was paid twice. Nothing in the sheet changes colour when you do this; the number is simply a little too big, and it looks exactly like a right one.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Keys: the columns that name a row<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A key is the column, or set of columns, whose value names exactly one row. In customers.csv the key is customer_id. In orders.csv, order_id is <em>not</em> a key, because it repeats; the key is order_id together with payment_seq. In items.csv it is order_id with item_no. Writing the key down is the grain sentence turned into something a formula can check: if the key repeats, the sentence was wrong.</p>
+        <p>The check is one formula you will use all evening: <code>=COUNTIFS(A:A, A2)</code> next to each row says how many rows share its key. Any value above 1 is a repeat. Session 2 shows the other half of this: a lookup assumes the column it searches is a key, and quietly returns the first match when it is not.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Payments are not orders.</strong> The public Olist dataset keeps payments in their own table, one row per payment instruction, because a single order can be split across a card, a voucher and more. Ferncastle's export joined that table to orders before sending it, which is how 1,508 orders became 1,565 rows. Exports built by joining a one-to-many table are the most common way a familiar file quietly changes its grain.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers one type per column</span>
+      <h2>One column, one type</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">A cell holds two things: a value and a type. You see the value. The formula sees both. A column of customer IDs where most cells are numbers and a few are text looks uniform on screen and behaves like two different columns to every lookup that touches it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three rows drawn left to right. On the left, three cells of the customer_id column as displayed: 427 aligned right, 00427 aligned left, and 427 followed by a faint dot for a trailing space, aligned left. In the middle, what each cell holds: the number 427, the text zero zero four two seven, and the text four two seven plus a space. On the right, the customers table key 427 as a number; the first row matches and returns state SP, the other two return #N/A. A note says exact match compares type and value, and that 67 rows are zero-padded text and 27 carry a trailing space.">
+        <defs>
+          <filter id="e1bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="23" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <marker id="e1bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e1bA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e1bL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e1bS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e1bV { font: 800 16px Inter, sans-serif; fill: #075C07; }
+          .e1bR { font: 800 16px Inter, sans-serif; fill: #991B1B; }
+          .e1bN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e1bSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="60" y="72" width="130" height="36" rx="4" fill="#FFFFFF"/>
+          <rect x="60" y="132" width="130" height="36" rx="4" fill="#FFFFFF"/>
+          <rect x="60" y="192" width="130" height="36" rx="4" fill="#FFFFFF"/>
+          <path d="M196 90 L254 90" marker-end="url(#e1bAr)"/>
+          <path d="M196 150 L254 150" marker-end="url(#e1bAr)"/>
+          <path d="M196 210 L254 210" marker-end="url(#e1bAr)"/>
+          <rect x="260" y="72" width="230" height="36" rx="8" transform="rotate(-0.6 375 90)" fill="#EDF7EB"/>
+          <rect x="260" y="132" width="230" height="36" rx="8" transform="rotate(0.5 375 150)" fill="#FFD84D"/>
+          <rect x="260" y="192" width="230" height="36" rx="8" transform="rotate(-0.4 375 210)" fill="#FFD84D"/>
+          <path d="M496 90 L594 90" marker-end="url(#e1bAr)"/>
+          <path d="M496 150 L594 150" marker-end="url(#e1bAr)"/>
+          <path d="M496 210 L594 210" marker-end="url(#e1bAr)"/>
+          <rect x="600" y="72" width="110" height="156" rx="8" transform="rotate(0.4 655 150)" fill="#FFFFFF"/>
+          <circle cx="100" cy="212" r="2.5" fill="#536356" stroke="#536356"/>
+        </g>
+
+        <text class="e1bA" x="60" y="58">WHAT YOU SEE</text>
+        <text class="e1bA" x="260" y="58">WHAT THE CELL HOLDS</text>
+        <text class="e1bA" x="600" y="58">WHAT IT IS COMPARED WITH</text>
+        <text class="e1bL" x="180" y="95" text-anchor="end">427</text>
+        <text class="e1bL" x="70" y="155">00427</text>
+        <text class="e1bL" x="70" y="215">427</text>
+        <text class="e1bL" x="274" y="95">number 427</text>
+        <text class="e1bL" x="274" y="155">text "00427" (five characters)</text>
+        <text class="e1bL" x="274" y="215">text "427 " (a space at the end)</text>
+        <text class="e1bS" x="616" y="100">customers!A</text>
+        <text class="e1bL" x="616" y="120">number 427</text>
+        <text class="e1bS" x="616" y="140">one row per</text>
+        <text class="e1bS" x="616" y="156">customer</text>
+        <text class="e1bV" x="730" y="96">SP</text>
+        <text class="e1bR" x="730" y="156">#N/A</text>
+        <text class="e1bR" x="730" y="216">#N/A</text>
+
+        <text class="e1bN" x="30" y="276">Exact match compares type and value. In orders.csv, 67 rows are zero-padded text and 27 carry a trailing space.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three cells you would read as the same customer are three different values to an exact lookup, and two of them find nobody</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Read the type as well as the value<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ferncastle's orders.csv stores customer_id as a number on most rows, and as text on 94 of them: 67 rows padded with zeros by the system that exported them ("00427") and 27 with a space typed or pasted after the digits ("427 "). Both look like 427. An exact lookup against the customers table, where the ID is the number 427, finds neither. Microsoft's own help pages walk through converting numbers stored as text with <code>VALUE</code>, and describe <code>TRIM</code> as removing all spaces except single spaces between words, which tells you how ordinary these cells are.</p>
+        <p>The working rule: <strong>one column, one type</strong>, checked rather than assumed. Before you trust a key column, count how many of its cells are numbers and how many are text; if both counts are above zero, the column is two columns sharing a header. Session 3 takes this apart properly, including the date column in the same file that is text from top to bottom.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where mixed columns come from<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three sources produce almost all of them. A system that pads IDs to a fixed width, so 427 leaves as "00427". A person who pastes a value copied from an email or a web page, bringing a trailing space with it (and sometimes the nonbreaking space, character 160, which Microsoft notes <code>TRIM</code> does not remove on its own). And an import that guesses each column's type from its first rows, so a column that starts with numbers is read as numbers until something breaks the pattern.</p>
+        <p>None of these raises an error. The mixed column only shows itself when something compares its cells with another column, which is exactly what a lookup, a COUNTIFS or a pivot does. That is why the type check belongs at the start of the work, next to the grain sentence, rather than at the end when a total looks odd.</p>
+      </div>
+    </details>
+
+    <div class="callout tip">
+      <p><strong>Write the grain and the types at the top of your notes, not in your head.</strong> Two lines per file: "one row is one payment; key order_id + payment_seq" and "customer_id: number on 1,471 rows, text on 94". Anyone who reviews your sheet can now check the claim instead of trusting the layout.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers silent failure and what the research says</span>
+      <h2>Why the grid stays quiet</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">A broken program stops. A broken spreadsheet keeps going and prints a number. There are three quiet paths from a real export to a plausible wrong answer, and every one of them ends in a cell that looks finished: a row matched to the wrong customer, a row that matched nobody and was hidden, and a row counted twice.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A flow drawn left to right. A box of 1,565 order rows feeds three paths: a wrong row returned by approximate match, a #N/A hidden by IFERROR, and a row counted twice because order_id repeats. All three paths flow into one highlighted output cell showing revenue by state of R$ 195,936.80. Below it a control-total check compares that with R$ 207,300.84 of distinct orders and finds a gap of R$ 11,364.04. A note says these are the naive rung numbers of the bench, computed from Ferncastle's rows.">
+        <defs>
+          <filter id="e1cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="37" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e1cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e1cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e1cH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e1cL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e1cS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e1cB { font: 800 11px Inter, sans-serif; fill: #5A4300; }
+          .e1cV { font: 800 16px Inter, sans-serif; fill: #17221A; }
+          .e1cN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e1cSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="130" width="150" height="60" rx="8" transform="rotate(-1 115 160)" fill="url(#e1cHc)"/>
+          <rect x="280" y="60" width="230" height="44" rx="10" transform="rotate(0.8 395 82)" fill="#FFFFFF"/>
+          <rect x="280" y="138" width="230" height="44" rx="10" transform="rotate(-0.6 395 160)" fill="#FFFFFF"/>
+          <rect x="280" y="216" width="230" height="44" rx="10" transform="rotate(0.5 395 238)" fill="#FFFFFF"/>
+          <path d="M194 150 L274 86" marker-end="url(#e1cAr)"/>
+          <path d="M194 160 L274 160" marker-end="url(#e1cAr)"/>
+          <path d="M194 170 L274 234" marker-end="url(#e1cAr)"/>
+          <path d="M516 86 L594 148" marker-end="url(#e1cAr)"/>
+          <path d="M516 160 L594 160" marker-end="url(#e1cAr)"/>
+          <path d="M516 234 L594 172" marker-end="url(#e1cAr)"/>
+          <rect x="600" y="130" width="170" height="60" rx="6" transform="rotate(0.6 685 160)" fill="#FFD84D"/>
+          <path d="M685 194 L685 222" marker-end="url(#e1cAr)"/>
+          <rect x="600" y="228" width="250" height="56" rx="10" transform="rotate(-0.5 725 256)" fill="#EDF7EB"/>
+        </g>
+
+        <text class="e1cH" x="30" y="30">THREE QUIET PATHS, ONE PLAUSIBLE NUMBER</text>
+        <text class="e1cL" x="115" y="156" text-anchor="middle">1,565</text>
+        <text class="e1cL" x="115" y="174" text-anchor="middle">order rows</text>
+        <text class="e1cL" x="296" y="80">wrong row returned</text>
+        <text class="e1cS" x="296" y="96">approximate match</text>
+        <text class="e1cL" x="296" y="158">#N/A hidden</text>
+        <text class="e1cS" x="296" y="174">IFERROR(..., "") makes it blank</text>
+        <text class="e1cL" x="296" y="236">row counted twice</text>
+        <text class="e1cS" x="296" y="252">order_id repeats</text>
+        <text class="e1cS" x="614" y="152">revenue by state</text>
+        <text class="e1cV" x="614" y="176">R$ 195,936.80</text>
+        <text class="e1cL" x="614" y="250">control total, distinct orders</text>
+        <text class="e1cB" x="614" y="270">R$ 207,300.84: gap R$ 11,364.04</text>
+
+        <text class="e1cN" x="30" y="306">Naive rung of the bench, computed from Ferncastle's rows. Session 6 runs every path; the check is what notices.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the yellow cell looks exactly like a right answer; only the reconciliation underneath shows that R$ 11,364.04 went somewhere</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What the research says, and how sure it is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Raymond Panko has spent decades collecting studies of spreadsheet errors, and his summary is blunt: across many studies, errors are common and non-trivial. The headline figures are reported here, not read at source, and they vary by version of his paper: older field audits found errors in about a quarter of the spreadsheets examined, more recent audits in most of them (figures of 86 percent and above appear in later versions), and an average cell error rate of a few percent in the formula cells studied.</p>
+        <p>Teach the caveat with the number. The audits are small, the definitions of "error" differ (some counted only serious ones), and the spreadsheets audited were not a random sample of all spreadsheets. What holds across the versions is the mechanism, which is the part you can use: errors are made at a low steady rate per cell, and a large sheet has many cells, so the question is never whether a big sheet has an error, only whether anything would notice it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The reconciliation habit<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every aggregate you hand to someone should be checked against a total computed a different way. Revenue by state must add up to the revenue of the distinct orders. Orders per customer must use a count of orders and a count of customers that each match their own grain. When the two totals disagree, the size and sign of the gap tell you which path you fell into: positive means rows went missing, negative means rows were counted twice.</p>
+        <p>On Ferncastle's naive build the gap is R$ 11,364.04, made of all three paths at once. Session 6 lets you switch each path off in turn and watch the gap close to R$ 0.00. A reconciliation does not find the bug for you. It tells you, reliably, that there is one.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>15,841 cases that were not in the total.</strong> In October 2020 Public Health England said that 15,841 positive COVID-19 cases between 25 September and 2 October had not been included in the reported daily figures, because "some files containing positive test results exceeded the maximum file size". PHE's statement does not name Excel or a row limit; press reports did. Either way, the reported figures were numbers, published daily, and nothing in them showed that rows were missing until someone reconciled them against the labs.</p>
+    </div>
+  </section>
+
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Build-along</span>
+      <h2>Find the grain of Ferncastle's export</h2>
+      <span class="tag demo">★ 22 min · everyone builds</span>
+    </div>
+    <p class="lede">Download the three files below, open orders.csv in Excel or import it into Google Sheets, and follow Dev through the six steps. The widget computes the same counts from the same rows, so you can check every number you get.</p>
+
+    <div id="exs-grain" data-exs="grain"></div>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="On the left a small sheet with an order_id column holding 10001, 10002, 10002, 10003, 10004, and a running count column holding 1, 1, 2, 1, 1; the 2 is highlighted. A bracket marks the range for the highlighted row, A$2:A4, which grows as the formula is filled down. On the right, keeping only rows with running count 1 turns 1,565 rows into 1,508 orders, and the sum of order_value drops from R$ 213,322.43 over every row to R$ 207,300.84 over first rows only.">
+        <defs>
+          <filter id="e1dSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <marker id="e1dAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e1dA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e1dL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e1dS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e1dV { font: 800 16px Inter, sans-serif; fill: #075C07; }
+          .e1dN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e1dSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="60" y="60" width="110" height="28" fill="#EDF7EB"/>
+          <rect x="170" y="60" width="130" height="28" fill="#EDF7EB"/>
+          <rect x="60" y="88" width="110" height="28" fill="#FFFFFF"/>
+          <rect x="170" y="88" width="130" height="28" fill="#FFFFFF"/>
+          <rect x="60" y="116" width="110" height="28" fill="#FFFFFF"/>
+          <rect x="170" y="116" width="130" height="28" fill="#FFFFFF"/>
+          <rect x="60" y="144" width="110" height="28" fill="#FFFFFF"/>
+          <rect x="170" y="144" width="130" height="28" fill="#FFD84D"/>
+          <rect x="60" y="172" width="110" height="28" fill="#FFFFFF"/>
+          <rect x="170" y="172" width="130" height="28" fill="#FFFFFF"/>
+          <rect x="60" y="200" width="110" height="28" fill="#FFFFFF"/>
+          <rect x="170" y="200" width="130" height="28" fill="#FFFFFF"/>
+          <path d="M310 92 L318 92 L318 168 L310 168"/>
+          <path d="M440 150 L514 150" marker-end="url(#e1dAr)"/>
+          <rect x="520" y="60" width="320" height="168" rx="12" transform="rotate(0.4 680 144)" fill="#FFFFFF"/>
+        </g>
+
+        <text class="e1dA" x="70" y="79">order_id</text>
+        <text class="e1dA" x="180" y="79">running count</text>
+        <text class="e1dL" x="70" y="107">10001</text>
+        <text class="e1dL" x="180" y="107">1</text>
+        <text class="e1dL" x="70" y="135">10002</text>
+        <text class="e1dL" x="180" y="135">1</text>
+        <text class="e1dL" x="70" y="163">10002</text>
+        <text class="e1dL" x="180" y="163">2</text>
+        <text class="e1dL" x="70" y="191">10003</text>
+        <text class="e1dL" x="180" y="191">1</text>
+        <text class="e1dL" x="70" y="219">10004</text>
+        <text class="e1dL" x="180" y="219">1</text>
+        <text class="e1dS" x="328" y="122">range for this</text>
+        <text class="e1dS" x="328" y="138">row: A$2:A4,</text>
+        <text class="e1dS" x="328" y="154">it grows as you</text>
+        <text class="e1dS" x="328" y="170">fill down</text>
+        <text class="e1dA" x="540" y="86">KEEP ROWS WHERE RUNNING COUNT = 1</text>
+        <text class="e1dL" x="540" y="114">rows</text>
+        <text class="e1dV" x="700" y="114">1,565 → 1,508</text>
+        <text class="e1dL" x="540" y="150">SUM(order_value)</text>
+        <text class="e1dS" x="540" y="176">every row</text>
+        <text class="e1dL" x="700" y="176">R$ 213,322.43</text>
+        <text class="e1dS" x="540" y="204">first rows only</text>
+        <text class="e1dV" x="700" y="204">R$ 207,300.84</text>
+
+        <text class="e1dN" x="30" y="266">Computed from Ferncastle's orders.csv (constructed case, derived Olist rows). Your sheet should print the same.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the running count marks the first row of each order, so one filter turns a payment table into an order table and removes R$ 6,021.59 of double counting</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <p><strong>Open the file and say what you expect.</strong> Before any formula, write your guess at the grain in a cell above the data or in your notes. Most people guess "one row per order". Keep the guess; the point of the next steps is to test it.</p>
+        <div class="prompt-box good"><span class="label">★ Step 1 · the guess, written down</span>File:   ferncastle-orders.csv
+Guess:  one row = one order
+Key:    order_id (if the guess is right, it never repeats)
+Check:  count rows, then count distinct order_id</div>
+      </div>
+      <div class="step">
+        <p><strong>Count the rows.</strong> With order_id in column A and the header in row 1, count the non-empty cells below the header. The answer is the number of payments, not yet the number of orders.</p>
+        <div class="prompt-box good"><span class="label">★ Step 2 · rows</span>=COUNTA(A2:A1566)
+-&gt; 1565</div>
+      </div>
+      <div class="step">
+        <p><strong>Add a running count.</strong> In the first empty column, row 2, write a COUNTIFS whose range starts at the fixed top (the dollar sign) and ends at the current row. Fill it down. Each row now says how many times its order_id has appeared so far, so the first appearance is always 1.</p>
+        <div class="prompt-box good"><span class="label">★ Step 3 · running count (column J, both apps)</span>J1:  first_row_of_order
+J2:  =COUNTIFS(A$2:A2, A2)
+     fill down to J1566
+Row 4 (the second row of order 10002) shows 2.</div>
+      </div>
+      <div class="step">
+        <p><strong>Count distinct orders.</strong> Count the rows whose running count is 1. If your guess were right, this would equal step 2. It does not.</p>
+        <div class="prompt-box good"><span class="label">★ Step 4 · distinct orders</span>=COUNTIFS(J2:J1566, 1)
+-&gt; 1508
+1565 - 1508 = 57 rows repeat an order that already appeared</div>
+      </div>
+      <div class="step">
+        <p><strong>Look at one repeat and name the grain.</strong> Filter for order_id 10002. Two rows: payment 1 by credit card (R$ 61.19) and payment 2 by voucher (R$ 86.87), with order_value R$ 129.90 on both. The payments add up to more than the order value because they also cover freight. Now write the real grain sentence and the real key.</p>
+        <div class="prompt-box good"><span class="label">★ Step 5 · the grain, corrected</span>Grain:  one row = one PAYMENT of an order
+Key:    order_id + payment_seq
+order_value repeats on every payment row of the same order
+payment_value does not</div>
+      </div>
+      <div class="step">
+        <p><strong>Prove what it costs.</strong> Sum order_value over every row, then over first rows only. The difference is the money a naive SUM counts twice. This pair of totals is your first reconciliation, and every later session reuses it.</p>
+        <div class="prompt-box good"><span class="label">★ Step 6 · the money</span>Every row:        =SUM(I2:I1566)                    -&gt; 213322.43
+First rows only:  =SUMIFS(I2:I1566, J2:J1566, 1)    -&gt; 207300.84
+Double counted:   213322.43 - 207300.84 = 6021.59</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>Keep the running-count column.</strong> It costs one column and it turns every later formula into a choice you make on purpose: count payments, or count orders. Delete it and you will be making that choice by accident.</p>
+    </div>
+  </section>
+
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Before session 2</h2>
+      <span class="tag exercise">30 min</span>
+    </div>
+    <ol>
+      <li><strong>Write the grain of three files you use.</strong> One sentence each, "one row is one ___", plus the key. Then test the key with the running count. Bring any file where the test disagreed with you.</li>
+      <li><strong>Type-check one key column.</strong> In Ferncastle's orders.csv, find a row whose customer_id is zero-padded and one with a trailing space. Then do the same on a key column of your own.</li>
+      <li><strong>Find a grid in the wild.</strong> A sheet in your organisation with a merged title, a blank row or a subtotal inside the data. Sketch how it would look as a table, with the totals moved underneath.</li>
+      <li><strong>Reconcile one number you reported.</strong> Recompute one total you have shared recently in a second, independent way. Write down the gap, even if it is R$ 0.00.</li>
+    </ol>
+  </section>
+
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+    <p>Clear all three and session 1 gets stamped in your passport.</p>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Ferncastle's orders.csv has 1,565 rows and 1,508 distinct order_id values. What is its grain?</p>
+      <button class="qopt" type="button">A · One row per order, with 57 rows of bad data to delete</button>
+      <button class="qopt" type="button">B · One row per customer</button>
+      <button class="qopt" type="button">C · One row per payment of an order, so the key is order_id together with payment_seq</button>
+      <button class="qopt" type="button">D · It has no grain until it is sorted</button>
+      <p class="qwhy">The repeats are not errors; an order paid by card and voucher really has two payments. Deleting them would lose payment information. The grain sentence names what a row is, and the key is whatever makes each row unique under that sentence.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · A customer_id cell shows 427, but an exact lookup against the customers table, where 427 is a number, returns #N/A. What is the likeliest cause?</p>
+      <button class="qopt" type="button">A · Customer 427 is missing from the customers table</button>
+      <button class="qopt" type="button">B · The cell holds text, such as "00427" or "427 " with a trailing space, so its type differs from the number in the table</button>
+      <button class="qopt" type="button">C · Lookups cannot match numbers</button>
+      <button class="qopt" type="button">D · The sheet needs recalculating</button>
+      <p class="qwhy">A cell has a value and a type. Exact match compares both, so a number and the same digits stored as text are different values. In Ferncastle's export 94 rows are text: 67 zero-padded and 27 with a trailing space.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="3">
+      <p class="qtext">3 · Revenue by state on Dev's first build totals R$ 195,936.80; the distinct orders total R$ 207,300.84. What does the gap tell him?</p>
+      <button class="qopt" type="button">A · Nothing; small differences are rounding</button>
+      <button class="qopt" type="button">B · The distinct-order total is wrong, because it is the bigger number</button>
+      <button class="qopt" type="button">C · That approximate match is the only problem</button>
+      <button class="qopt" type="button">D · That rows were lost or misplaced on the way to the pivot, so the build has a bug to find before anyone sees the number</button>
+      <p class="qwhy">R$ 11,364.04 is not rounding. A reconciliation does not name the bug, but a positive gap says money went missing, and on the naive build all three quiet paths contribute. The two totals must agree before the breakdown is trusted.</p>
+    </div>
+
+    <p class="quiz-score"></p>
+  </section>
+
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Sources covered</span>
+      <h2>What this session teaches, and where it came from</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Olist. Brazilian E-Commerce Public Dataset by Olist. Kaggle. CC BY-NC-SA 4.0</span><span class="note">Licence and description ("100k orders from 2016 to 2018") read from the Kaggle dataset API; Ferncastle's rows are a derived, masked sample of 1,508 delivered orders</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support: Convert numbers stored as text to numbers; TRIM function</span><span class="note">VALUE for text numbers; TRIM removes all spaces except single spaces between words, and does not remove the nonbreaking space (160) on its own</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support and Google Docs Editors Help: COUNTIFS, SUMIFS</span><span class="note">Argument order read in both: COUNTIFS(criteria_range1, criterion1, ...); SUMIFS(sum_range, criteria_range1, criterion1, ...)</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Public Health England (5 October 2020). PHE statement on delayed reporting of COVID-19 cases</span><span class="note">15,841 cases not included; cause stated as files exceeding "the maximum file size". Excel is named only in press reports</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Panko, R. R. Spreadsheet error research (1998 onward; EuSpRIG 2000, arXiv:0802.3457)</span><span class="note">Reported: figures vary by version; the abstract read at source says errors are common and non-trivial; caveats taught with the numbers</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Grain, keys, one type per column, the three quiet paths</span><span class="note">Common practice assembled here; every Ferncastle count on the page is computed from the shipped rows</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ferncastle, Imogen and Dev</span><span class="note">Constructed for teaching; the orders are derived from Olist, the people and the shop are not real</span></div>
+    </div>
+    <p class="mono" style="margin-top:14px">Every fact on this page, and its verification tier, is recorded in the course's source map.</p>
+  </section>
+
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 1 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The grain sentence</b><span>"One row of this table is one ___." Write it before the first formula. orders.csv: one payment.</span></div>
+      <div class="cheat-item"><b>Table, not grid</b><span>One header row, one kind of row, no merged cells, blank rows or subtotals inside the data.</span></div>
+      <div class="cheat-item"><b>Test the key</b><span>=COUNTIFS(A$2:A2, A2) filled down. Anything above 1 repeats. 1,565 rows, 1,508 orders.</span></div>
+      <div class="cheat-item"><b>One column, one type</b><span>427, "00427" and "427 " are three values to an exact lookup. 94 text IDs in orders.csv.</span></div>
+      <div class="cheat-item"><b>Three quiet paths</b><span>Wrong row, missing row hidden by IFERROR, row counted twice. All end in a plausible number.</span></div>
+      <div class="cheat-item"><b>Reconcile</b><span>Breakdown total against distinct-order total. Positive gap: rows lost. Negative: rows doubled.</span></div>
+    </div>
+  </section>
+
+  <div class="callout next">
+    <span class="nx-pill">Next session</span>
+    <p>Dev knows what one row is and which column is a key. Session 2 joins the files: VLOOKUP and its fourth argument, which is approximate when you leave it out, in both apps; XLOOKUP and INDEX/MATCH; and the fact that every lookup is a join you made without writing the word, with a first-match rule nobody told you about.</p>
+  </div>
+
+  <footer class="pagefoot">
+    <span>Session 1 of 6 · learn-excel-sheets-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="../index.html">← Course home</a> &nbsp;·&nbsp; <a href="02-lookups-and-the-hidden-join.html">Next: Lookups and the join you didn't know you made →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/exs-data.js?v=1"></script>
+<script src="../assets/exs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

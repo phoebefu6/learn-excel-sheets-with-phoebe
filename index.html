@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Six sessions on spreadsheets as data work with silent failure modes: grain and types, lookups as joins, text that looks like numbers, pivots that count rows instead of orders, when to leave, and a formula-audit bench on 1,565 real derived order rows, every number computed in your browser.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Learn Excel &amp; Sheets with Phoebe">
+<meta property="og:description" content="A spreadsheet never warns you. Six sessions, one constructed shop, real order rows, and a bench that counts the rows a formula gets silently wrong.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Learn Excel &amp; Sheets with Phoebe">
+<meta name="twitter:description" content="Lookups, types and pivots taught by what they get wrong without an error, on real derived order rows.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Learn Excel &amp; Sheets with Phoebe</title>
+<link rel="stylesheet" href="assets/style.css?v=1">
+<style>
+
+  .stats-row { display: flex; gap: 2.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .stat b { display: block; font-size: 2.1rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: .72rem; opacity: 1; text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
+
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .course-card {
+    border: 1px solid var(--hairline);
+    border-top: 4px solid var(--diff, var(--indigo));
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: #fff;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+    position: relative;
+  }
+  .course-card:hover { border-color: var(--indigo-soft); border-top-color: var(--diff, var(--indigo)); box-shadow: 0 8px 28px rgba(var(--shadow-rgb),.16); transform: translateY(-3px); }
+  .course-card .cicon { font-size: 1.7rem; line-height: 1; }
+  .course-card .cnum { font-size: .72rem; font-weight: 700; color: var(--indigo); text-transform: uppercase; letter-spacing: .1em; }
+  .course-card h3 { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+  .course-card p { font-size: .85rem; color: var(--muted); flex: 1; }
+  .course-card .meta { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+  .diff-legend { display: flex; gap: 1rem; margin-top: 1.6rem; font-size: .74rem; color: var(--muted); font-weight: 600; flex-wrap: wrap; }
+  .diff-legend i { display: inline-block; width: .85rem; height: .35rem; border-radius: 999px; margin-right: .35rem; vertical-align: middle; }
+
+  .paths { margin-top: 2.6rem; }
+  .paths h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .3rem; }
+  .paths .plede { color: var(--muted); font-size: .92rem; margin-bottom: .8rem; }
+  .path { display: flex; gap: .55rem; align-items: center; padding: .75rem 0; border-bottom: .5px solid var(--hairline); flex-wrap: wrap; }
+  .path:last-child { border-bottom: none; }
+  .path b { min-width: 15.5rem; font-size: .9rem; }
+  .path .pstep { background: var(--indigo-50); color: var(--indigo-deep); border-radius: 999px; padding: .16rem .68rem; font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .12s ease; }
+  .path .pstep:hover { background: var(--indigo); color: #fff; }
+  .path .parr { color: var(--muted); font-weight: 700; }
+
+  .mm-section { margin-top: 1.6rem; }
+  .mm-section h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .2rem; }
+  .mm-section .mm-lede { color: var(--muted); font-size: .92rem; margin-bottom: .4rem; }
+  .mm-wrap { border: 1px solid var(--hairline); border-radius: var(--radius); background: linear-gradient(180deg,#fff,var(--indigo-50)); padding: .6rem; overflow-x: auto; }
+  .mm-svg { width: 100%; height: auto; display: block; max-width: 60rem; margin: 0 auto; min-width: 34rem; }
+  .mm-link { cursor: pointer; text-decoration: none; }
+  .mm-node rect { transition: opacity .15s ease, filter .15s ease; }
+  .mm-node text { pointer-events: none; }
+  .mm-link:hover .mm-node rect { filter: brightness(1.06); }
+  .mm-edge { transition: opacity .15s ease; }
+
+  .not-this { border: 1px solid var(--hairline); border-left: 4px solid var(--clay); border-radius: var(--radius); background: #fff; padding: 1.1rem 1.3rem; margin-top: 1.2rem; }
+  .not-this h3 { font-size: .95rem; font-weight: 800; margin-bottom: .5rem; }
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn with Phoebe · Data</div>
+    <h1>Learn <span class="accent">Excel &amp; Sheets</span> with Phoebe</h1>
+    <p class="sub">A spreadsheet will hold anything and warn you about almost nothing. A lookup that matches the wrong customer, an ID stored as text, a pivot that counts payments as orders: each one prints a tidy number. Six sessions for analysts on spreadsheets as data work, taught by their silent failure modes rather than their buttons, with every formula checked against Microsoft's and Google's own help pages and every number computed from real order rows.</p>
+    <div class="stats-row">
+      <div class="stat"><b data-count="6">6</b><span>sessions</span></div>
+      <div class="stat"><b data-count="1565">1,565</b><span>real derived order rows</span></div>
+      <div class="stat"><b data-count="1266">1,266</b><span>rows silently wrong on the naive build</span></div>
+      <div class="stat"><b data-count="0">0</b><span>on the audited one</span></div>
+      <div class="stat"><b data-count="45">45</b><span>min per session</span></div>
+    </div>
+  </div>
+</header>
+<main class="wrap">
+  <section class="section">
+    <div class="paths" style="margin-top:0">
+      <h2>The six sessions 🧮 <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· from what one row is to an answer you can audit</span></h2>
+      <p class="plede">The running case is <strong>Ferncastle, a constructed online kitchenware shop</strong> whose order export is real: derived, masked rows from the Brazilian E-Commerce Public Dataset by Olist. Imogen, the operations lead, wants three numbers for Monday: revenue by customer state, orders per customer and the late-delivery share. Dev, the analyst, builds them in a spreadsheet, and meets every trap the export really carries. Every formula works in both Excel and Google Sheets unless the page says which.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/01-a-table-is-not-a-grid.html" style="--diff:#34D399">
+        <span class="cicon">🧾</span>
+        <span class="cnum">Session 1 · foundations</span>
+        <h3>A table is not a grid</h3>
+        <p>Grain, keys and one type per column. Ferncastle's real export opened and counted: 1,565 rows, 1,508 orders, and the three quiet paths to a plausible wrong number.</p>
+        <span class="meta"><span class="pill amber">▶ Start here</span></span>
+      </a>
+      <a class="course-card" href="courses/02-lookups-and-the-hidden-join.html" style="--diff:#FBBF24">
+        <span class="cicon">🔗</span>
+        <span class="cnum">Session 2 · core</span>
+        <h3>Lookups and the join you didn't know you made</h3>
+        <p>VLOOKUP's fourth argument, which is approximate when you leave it out, in both apps. XLOOKUP, INDEX and MATCH, and the first-match rule every lookup quietly applies.</p>
+        <span class="meta"><span class="pill">exact, written out</span></span>
+      </a>
+      <a class="course-card" href="courses/03-types-that-lie.html" style="--diff:#FBBF24">
+        <span class="cicon">🔤</span>
+        <span class="cnum">Session 3 · core</span>
+        <h3>Types that lie</h3>
+        <p>Numbers stored as text, trailing spaces, and dates that depend on the computer's date setting. TRIM, VALUE and DATE, and the genes that were renamed because a spreadsheet guessed.</p>
+        <span class="meta"><span class="pill">value and type</span></span>
+      </a>
+      <a class="course-card" href="courses/04-pivots-and-what-they-hide.html" style="--diff:#FB923C">
+        <span class="cicon">🧮</span>
+        <span class="cnum">Session 4 · deeper</span>
+        <h3>Pivots and what they hide</h3>
+        <p>Group by, then count, sum or distinct count. Why counting rows is not counting orders, what Excel needs before it will count distinct, and totals that must reconcile.</p>
+        <span class="meta"><span class="pill">count what you mean</span></span>
+      </a>
+      <a class="course-card" href="courses/05-when-to-leave.html" style="--diff:#FB923C">
+        <span class="cicon">🚪</span>
+        <span class="cnum">Session 5 · deeper</span>
+        <h3>When to leave</h3>
+        <p>Row and cell limits read at source, and the better reasons to move: work that repeats, needs review or joins many tables. The hand-over to SQL and the command line.</p>
+        <span class="meta"><span class="pill">know the exit</span></span>
+      </a>
+      <a class="course-card" href="courses/06-the-formula-audit-bench.html" style="--diff:#F87171">
+        <span class="cicon">🔎</span>
+        <span class="cnum">Session 6 · bench night</span>
+        <h3>The formula-audit bench</h3>
+        <p>A formula engine in the page runs Imogen's three questions five ways over the real rows and counts wrong rows, missing rows and double counts. Plus an anti-lever and a break button.</p>
+        <span class="meta"><span class="pill amber">★ the bench</span></span>
+      </a>
+    </div>
+    <div class="diff-legend">
+      <span><i style="background:#34D399"></i>foundations</span>
+      <span><i style="background:#FBBF24"></i>core</span>
+      <span><i style="background:#FB923C"></i>deeper</span>
+      <span><i style="background:#F87171"></i>bench night</span>
+    </div>
+  </section>
+  <section class="section">
+    <div class="paths" style="margin-top:0">
+      <h2>Your passport 🎫</h2>
+      <p class="plede">Clear all three quiz questions in a session and it gets stamped. Six stamps means you can say the grain of any table, write a lookup that cannot match the wrong row, find text hiding in a number column, make a pivot count what you mean, know when the spreadsheet is the wrong tool, and audit a build until two totals agree. Stamps live in this browser only.</p>
+    </div>
+    <div class="pp-strip"></div>
+  </section>
+  <section class="section">
+    <div class="not-this">
+      <h3>What this is not, so you land in the right place 🧭</h3>
+      <table class="clean">
+        <tr><th>If your question is</th><th>Go here instead</th></tr>
+        <tr><td>How do I query and join tables in a database?</td><td><a href="https://phoebefu6.github.io/learn-sql-with-phoebe/">SQL ↗</a></td></tr>
+        <tr><td>How do I build or read a dashboard in a BI tool?</td><td><a href="https://phoebefu6.github.io/learn-business-intelligence-with-phoebe/">Business Intelligence ↗</a></td></tr>
+        <tr><td>What goes on the screen, where, and in what colour?</td><td><a href="https://phoebefu6.github.io/learn-dashboard-design-with-phoebe/">Dashboard Design ↗</a></td></tr>
+        <tr><td>How do I do this in pandas?</td><td><a href="https://phoebefu6.github.io/learn-python-data-analysis-with-phoebe/">Python Data Analysis ↗</a></td></tr>
+        <tr><td>Can I answer the same questions with pipes in a terminal?</td><td><a href="https://phoebefu6.github.io/learn-command-line-with-phoebe/">Command Line ↗</a></td></tr>
+        <tr><td><strong>My numbers come out of a spreadsheet. How do I know they are right?</strong></td><td><strong>you are in the right place</strong></td></tr>
+      </table>
+      <p style="margin-top:.7rem;font-size:.86rem;color:var(--muted)"><strong>Lookups, types, pivots and the audit.</strong> Querying, dashboards, screen design, pandas and the shell are taught next door and linked from here rather than repeated.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="paths">
+      <h2>Choose your path 🗺️</h2>
+      <p class="plede">Three doors into the same habit: say what a row is, compare types as well as values, and reconcile before you report.</p>
+      <div class="path"><b>📅 I hand in a number on Monday</b>
+        <a class="pstep" href="courses/01-a-table-is-not-a-grid.html">1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/02-lookups-and-the-hidden-join.html">2</a><span class="parr">→</span>
+        <a class="pstep" href="courses/06-the-formula-audit-bench.html">6</a>
+        <span style="font-size:.82rem;color:var(--muted)">grain, exact lookups, the audit</span>
+      </div>
+      <div class="path"><b>🧩 My totals never quite match</b>
+        <a class="pstep" href="courses/04-pivots-and-what-they-hide.html">4</a><span class="parr">→</span>
+        <a class="pstep" href="courses/03-types-that-lie.html">3</a><span class="parr">→</span>
+        <a class="pstep" href="courses/02-lookups-and-the-hidden-join.html">2</a>
+        <span style="font-size:.82rem;color:var(--muted)">pivots, types, then the join</span>
+      </div>
+      <div class="path"><b>🧮 The whole craft</b>
+        <a class="pstep" href="courses/01-a-table-is-not-a-grid.html">1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/02-lookups-and-the-hidden-join.html">2</a><span class="parr">→</span>
+        <a class="pstep" href="courses/03-types-that-lie.html">3</a><span class="parr">→</span>
+        <a class="pstep" href="courses/04-pivots-and-what-they-hide.html">4</a><span class="parr">→</span>
+        <a class="pstep" href="courses/05-when-to-leave.html">5</a><span class="parr">→</span>
+        <a class="pstep" href="courses/06-the-formula-audit-bench.html">6</a>
+        <span style="font-size:.82rem;color:var(--muted)">from one row to an audited answer</span>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="not-this">
+      <h3>What is real here, and what is not 🔎</h3>
+      <table class="clean">
+        <tr><th>Thing</th><th>Status</th></tr>
+        <tr><td>1,565 order rows, 1,370 customers and 1,749 item lines</td><td><strong>Real, derived and masked.</strong> A sample of delivered orders from the Brazilian E-Commerce Public Dataset by Olist (Kaggle, CC BY-NC-SA 4.0) with new IDs, no reviews and no zip codes</td></tr>
+        <tr><td>Wrong rows, missing rows, double counts and the control gap</td><td><strong>Computed in your browser</strong> by a small formula engine, and checked against an independent Python run on every number</td></tr>
+        <tr><td>Which wrong row approximate match returns, and how DATEVALUE reads a date</td><td><strong>Modelled, and labelled on the widget:</strong> a textbook binary search, and a month-first date setting. The apps only promise a right answer on sorted data</td></tr>
+        <tr><td>What each function does by default</td><td><strong>Read at source</strong> on Microsoft Support and Google Docs Editors Help, and stated per app where they differ</td></tr>
+        <tr><td>Ferncastle, Imogen and Dev</td><td><strong>Constructed,</strong> for teaching</td></tr>
+      </table>
+    </div>
+  </section>
+  <section class="section mm-section">
+    <h2>The knowledge map 🧠</h2>
+    <p class="mm-lede">The whole path at a glance - hover a session to spotlight its concepts, click any node to jump in.</p>
+    <div class="mm-wrap"><div id="mindmap"></div></div>
+  </section>
+  <footer class="pagefoot">
+    <span>learn-excel-sheets-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span>Neighbours on the shelf: <a href="https://phoebefu6.github.io/learn-sql-with-phoebe/">SQL ↗</a> &nbsp;·&nbsp; <a href="https://phoebefu6.github.io/learn-command-line-with-phoebe/">Command Line ↗</a> &nbsp;·&nbsp; <a href="https://phoebefu6.github.io/learn-business-intelligence-with-phoebe/">Business Intelligence ↗</a></span>
+  </footer>
+</main>
+<script>
+window.MINDMAP_DATA = {
+ "title": "Excel &\nSheets",
+ "centerColor": "#075C07",
+ "sessions": [
+  {
+   "label": "A table is\nnot a grid",
+   "href": "courses/01-a-table-is-not-a-grid.html",
+   "color": "#34D399",
+   "concepts": [
+    {
+     "label": "Say the grain",
+     "href": "courses/01-a-table-is-not-a-grid.html"
+    },
+    {
+     "label": "One column, one type",
+     "href": "courses/01-a-table-is-not-a-grid.html"
+    },
+    {
+     "label": "Three quiet paths",
+     "href": "courses/01-a-table-is-not-a-grid.html"
+    }
+   ]
+  },
+  {
+   "label": "Lookups and\nthe hidden join",
+   "href": "courses/02-lookups-and-the-hidden-join.html",
+   "color": "#FBBF24",
+   "concepts": [
+    {
+     "label": "The 4th argument",
+     "href": "courses/02-lookups-and-the-hidden-join.html"
+    },
+    {
+     "label": "XLOOKUP and INDEX/MATCH",
+     "href": "courses/02-lookups-and-the-hidden-join.html"
+    },
+    {
+     "label": "First match wins",
+     "href": "courses/02-lookups-and-the-hidden-join.html"
+    }
+   ]
+  },
+  {
+   "label": "Types\nthat lie",
+   "href": "courses/03-types-that-lie.html",
+   "color": "#FBBF24",
+   "concepts": [
+    {
+     "label": "Numbers stored as text",
+     "href": "courses/03-types-that-lie.html"
+    },
+    {
+     "label": "Dates and the locale",
+     "href": "courses/03-types-that-lie.html"
+    },
+    {
+     "label": "TRIM, VALUE, DATE",
+     "href": "courses/03-types-that-lie.html"
+    }
+   ]
+  },
+  {
+   "label": "Pivots and\nwhat they hide",
+   "href": "courses/04-pivots-and-what-they-hide.html",
+   "color": "#FB923C",
+   "concepts": [
+    {
+     "label": "Count, sum, distinct",
+     "href": "courses/04-pivots-and-what-they-hide.html"
+    },
+    {
+     "label": "Rows are not orders",
+     "href": "courses/04-pivots-and-what-they-hide.html"
+    },
+    {
+     "label": "Totals that reconcile",
+     "href": "courses/04-pivots-and-what-they-hide.html"
+    }
+   ]
+  },
+  {
+   "label": "When to\nleave",
+   "href": "courses/05-when-to-leave.html",
+   "color": "#FB923C",
+   "concepts": [
+    {
+     "label": "Limits, read at source",
+     "href": "courses/05-when-to-leave.html"
+    },
+    {
+     "label": "Repeat, review, join",
+     "href": "courses/05-when-to-leave.html"
+    },
+    {
+     "label": "Hand over to SQL",
+     "href": "courses/05-when-to-leave.html"
+    }
+   ]
+  },
+  {
+   "label": "The formula-\naudit bench",
+   "href": "courses/06-the-formula-audit-bench.html",
+   "color": "#F87171",
+   "concepts": [
+    {
+     "label": "Five rungs, three counters",
+     "href": "courses/06-the-formula-audit-bench.html"
+    },
+    {
+     "label": "Approximate: worse",
+     "href": "courses/06-the-formula-audit-bench.html"
+    },
+    {
+     "label": "Break: clean both sides",
+     "href": "courses/06-the-formula-audit-bench.html"
+    }
+   ]
+  }
+ ]
+};
+</script>
+<script src="assets/mindmap.js?v=1"></script>
+<script src="assets/app.js?v=1"></script>
+</body>
+</html>

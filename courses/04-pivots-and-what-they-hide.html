@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Session 4 of 6. A pivot groups rows, then summarises each group, and it never asks what a row is. Count, sum and distinct count on Ferncastle's rows: SP has 669 rows, 645 orders and 587 customers, and only one of those answers Imogen's question.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Pivots and what they hide - learn excel and sheets with phoebe">
+<meta property="og:description" content="Session 4 of 6. Group by, then count what you mean: rows, orders or customers. 669, 645, 587, and a control total that tells you which one you counted.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/courses/04-pivots-and-what-they-hide.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pivots and what they hide - learn excel and sheets with phoebe">
+<meta name="twitter:description" content="Session 4 of 6. Count vs sum vs distinct count, and the totals that reconcile.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Session 4 · Pivots and what they hide - learn excel and sheets with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-excel-sheets-with-phoebe</a> / Session 4 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Excel &amp; Sheets with Phoebe · Session 4 of 6</div>
+    <h1>Pivots and what they <span class="accent">hide</span></h1>
+    <p class="sub">A pivot table is the fastest honest-looking number in any spreadsheet. Drag a field into Rows, another into Values, and a tidy summary appears with a grand total at the bottom. What it does not show is what it counted. It groups rows, then summarises each group, and it never asks what one row is. Tonight we pivot Ferncastle's orders by state and find three different answers for SP alone, then build the one check that tells you which answer you are holding.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Deeper</span>
+      <span class="chip audience">Analysts who already live in a spreadsheet</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Group by, rows vs orders, reconcile</span>
+      <span class="a3" style="flex:5">18-40 · Build-along: pivot by state three ways</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where we start</h2>
+    </div>
+    <p class="lede">The running case is constructed. Ferncastle is an invented online kitchenware shop; Imogen, its operations lead, wants revenue by customer state, orders per customer and the late-delivery share for Monday, and Dev, the analyst, is building them. The rows are not invented: they are real orders from the Brazilian E-Commerce Public Dataset by Olist, derived and masked, so every count on this page is computed from them and your sheet should print the same. After session 3, every one of the 1,565 rows in orders.csv finds its state through a cleaned, exact lookup. That feels like the finish line. It is the point where the last quiet path, the row counted twice, starts to matter, because a pivot will add up whatever rows you give it.</p>
+
+    <div class="legend">
+      <span class="pill">🎫 Clear all three quiz questions to stamp your passport</span>
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">★ Build-along = do it in your own sheet</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A picture of what a pivot does (group first, summarise second) that you can say out loud; the difference between counting rows, orders and customers, with SP's 669, 645 and 587 to prove it matters; what Microsoft records about pivot defaults and Distinct Count, and what is only reported for Google Sheets; COUNTIFS and SUMIFS as the checkable twin of every pivot cell; and a control total that reads minus R$ 6,021.59 before the fix and R$ 0.00 after it.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers group by, then summarise</span>
+      <h2>Group first, count second</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">Every pivot does two things in a fixed order. First it sorts rows into buckets, one bucket per value of the Rows field. Then it runs one summary function inside each bucket: count, sum, average, distinct count. The bucket has no idea whether its rows are orders, payments or customers. It summarises exactly the rows it was handed, so the grain sentence from session 1 decides what every pivot cell means.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="On the left, the first nine rows of Ferncastle's orders.csv with order_id, state and order_value: 10001 SP 102.90, 10002 ES 129.90 twice, 10003 RJ 736.00, 10004 MS 49.90 twice, 10005 MS 129.99 twice, 10006 AC 119.99. Arrows sort each row into a state bucket: SP one row, ES two rows and one order, RJ one row, MS four rows, two orders and one customer, AC one row. On the right the MS bucket is summarised five ways: count of rows 4, distinct orders 2, distinct customers 1, sum over rows R$ 359.78 highlighted, sum over orders R$ 179.89.">
+        <defs>
+          <filter id="e4aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="43" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e4aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e4aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e4aH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e4aL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e4aS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e4aB { font: 800 11px Inter, sans-serif; fill: #5A4300; }
+          .e4aV { font: 800 16px Inter, sans-serif; fill: #075C07; }
+          .e4aK { font: 800 16px Inter, sans-serif; fill: #17221A; }
+          .e4aA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e4aN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e4aSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="68" width="70" height="24" fill="#FFFFFF"/><rect x="110" y="68" width="50" height="24" fill="#FFFFFF"/><rect x="160" y="68" width="80" height="24" fill="#FFFFFF"/>
+          <rect x="40" y="92" width="70" height="24" fill="#FFFFFF"/><rect x="110" y="92" width="50" height="24" fill="#FFFFFF"/><rect x="160" y="92" width="80" height="24" fill="#FFFFFF"/>
+          <rect x="40" y="116" width="70" height="24" fill="#FFFFFF"/><rect x="110" y="116" width="50" height="24" fill="#FFFFFF"/><rect x="160" y="116" width="80" height="24" fill="#FFFFFF"/>
+          <rect x="40" y="140" width="70" height="24" fill="#FFFFFF"/><rect x="110" y="140" width="50" height="24" fill="#FFFFFF"/><rect x="160" y="140" width="80" height="24" fill="#FFFFFF"/>
+          <rect x="40" y="164" width="70" height="24" fill="#EDF7EB"/><rect x="110" y="164" width="50" height="24" fill="#EDF7EB"/><rect x="160" y="164" width="80" height="24" fill="#EDF7EB"/>
+          <rect x="40" y="188" width="70" height="24" fill="#EDF7EB"/><rect x="110" y="188" width="50" height="24" fill="#EDF7EB"/><rect x="160" y="188" width="80" height="24" fill="#EDF7EB"/>
+          <rect x="40" y="212" width="70" height="24" fill="#EDF7EB"/><rect x="110" y="212" width="50" height="24" fill="#EDF7EB"/><rect x="160" y="212" width="80" height="24" fill="#EDF7EB"/>
+          <rect x="40" y="236" width="70" height="24" fill="#EDF7EB"/><rect x="110" y="236" width="50" height="24" fill="#EDF7EB"/><rect x="160" y="236" width="80" height="24" fill="#EDF7EB"/>
+          <rect x="40" y="260" width="70" height="24" fill="#FFFFFF"/><rect x="110" y="260" width="50" height="24" fill="#FFFFFF"/><rect x="160" y="260" width="80" height="24" fill="#FFFFFF"/>
+          <path d="M30 168 L24 168 L24 256 L30 256"/>
+
+          <path d="M246 80 L324 83" marker-end="url(#e4aAr)"/>
+          <path d="M246 104 L324 119" marker-end="url(#e4aAr)"/>
+          <path d="M246 128 L324 127" marker-end="url(#e4aAr)"/>
+          <path d="M246 152 L324 163" marker-end="url(#e4aAr)"/>
+          <path d="M246 176 L324 208" marker-end="url(#e4aAr)"/>
+          <path d="M246 200 L324 216" marker-end="url(#e4aAr)"/>
+          <path d="M246 224 L324 226" marker-end="url(#e4aAr)"/>
+          <path d="M246 248 L324 234" marker-end="url(#e4aAr)"/>
+          <path d="M246 272 L324 279" marker-end="url(#e4aAr)"/>
+
+          <rect x="330" y="68" width="190" height="30" rx="6" transform="rotate(-0.8 425 83)" fill="#FFFFFF"/>
+          <rect x="330" y="108" width="190" height="30" rx="6" transform="rotate(0.7 425 123)" fill="#FFFFFF"/>
+          <rect x="330" y="148" width="190" height="30" rx="6" transform="rotate(-0.5 425 163)" fill="#FFFFFF"/>
+          <rect x="330" y="188" width="190" height="66" rx="6" transform="rotate(0.6 425 221)" fill="#EDF7EB"/>
+          <rect x="330" y="264" width="190" height="30" rx="6" transform="rotate(-0.6 425 279)" fill="#FFFFFF"/>
+
+          <path d="M526 221 L602 200" marker-end="url(#e4aAr)"/>
+          <rect x="610" y="120" width="240" height="170" rx="10" transform="rotate(0.4 730 205)" fill="#FFFFFF"/>
+          <rect x="618" y="220" width="224" height="26" rx="3" fill="#FFD84D"/>
+        </g>
+
+        <text class="e4aH" x="30" y="30">GROUP FIRST, THEN SUMMARISE INSIDE EACH BUCKET</text>
+        <text class="e4aA" x="40" y="58">ROWS, IN FILE ORDER</text>
+        <text class="e4aA" x="330" y="58">BUCKETS BY STATE</text>
+        <text class="e4aA" x="610" y="110">SUMMARY OF THE MS BUCKET</text>
+
+        <text class="e4aL" x="48" y="84">10001</text><text class="e4aL" x="118" y="84">SP</text><text class="e4aL" x="232" y="84" text-anchor="end">102.90</text>
+        <text class="e4aL" x="48" y="108">10002</text><text class="e4aL" x="118" y="108">ES</text><text class="e4aL" x="232" y="108" text-anchor="end">129.90</text>
+        <text class="e4aL" x="48" y="132">10002</text><text class="e4aL" x="118" y="132">ES</text><text class="e4aL" x="232" y="132" text-anchor="end">129.90</text>
+        <text class="e4aL" x="48" y="156">10003</text><text class="e4aL" x="118" y="156">RJ</text><text class="e4aL" x="232" y="156" text-anchor="end">736.00</text>
+        <text class="e4aL" x="48" y="180">10004</text><text class="e4aL" x="118" y="180">MS</text><text class="e4aL" x="232" y="180" text-anchor="end">49.90</text>
+        <text class="e4aL" x="48" y="204">10004</text><text class="e4aL" x="118" y="204">MS</text><text class="e4aL" x="232" y="204" text-anchor="end">49.90</text>
+        <text class="e4aL" x="48" y="228">10005</text><text class="e4aL" x="118" y="228">MS</text><text class="e4aL" x="232" y="228" text-anchor="end">129.99</text>
+        <text class="e4aL" x="48" y="252">10005</text><text class="e4aL" x="118" y="252">MS</text><text class="e4aL" x="232" y="252" text-anchor="end">129.99</text>
+        <text class="e4aL" x="48" y="276">10006</text><text class="e4aL" x="118" y="276">AC</text><text class="e4aL" x="232" y="276" text-anchor="end">119.99</text>
+
+        <text class="e4aL" x="342" y="88">SP · 1 row</text>
+        <text class="e4aL" x="342" y="128">ES · 2 rows, 1 order</text>
+        <text class="e4aL" x="342" y="168">RJ · 1 row</text>
+        <text class="e4aL" x="342" y="216">MS · 4 rows</text>
+        <text class="e4aS" x="342" y="234">2 orders, 1 customer</text>
+        <text class="e4aL" x="342" y="284">AC · 1 row</text>
+
+        <text class="e4aL" x="624" y="148">count of rows</text><text class="e4aK" x="836" y="150" text-anchor="end">4</text>
+        <text class="e4aL" x="624" y="176">distinct orders</text><text class="e4aV" x="836" y="178" text-anchor="end">2</text>
+        <text class="e4aL" x="624" y="204">distinct customers</text><text class="e4aV" x="836" y="206" text-anchor="end">1</text>
+        <text class="e4aL" x="624" y="238">sum over rows</text><text class="e4aK" x="836" y="240" text-anchor="end">R$ 359.78</text>
+        <text class="e4aL" x="624" y="270">sum over orders</text><text class="e4aV" x="836" y="272" text-anchor="end">R$ 179.89</text>
+
+        <text class="e4aN" x="30" y="322">First nine rows of orders.csv (constructed shop, derived Olist rows). Both MS orders are customer 3082.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the bucket for MS holds four rows, two orders and one customer; which of those the pivot reports depends only on the summary you pick</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Count, sum and distinct count are three different questions<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Look at the first nine rows of Ferncastle's orders.csv. Order 10004 and order 10005 both went to customer 3082 in MS, and both were paid in two parts, so MS gets four rows. Ask the MS bucket "how many?" and there are three honest answers: 4 rows, 2 orders, 1 customer. Ask it "how much?" and there are two: R$ 359.78 if you add order_value on every row, R$ 179.89 if you add it once per order. Only the second is revenue, because order_value repeats on every payment row of the same order.</p>
+        <p>A pivot will give you any of these. <strong>Count</strong> counts rows in the bucket. <strong>Sum</strong> adds a column over the rows in the bucket. <strong>Distinct count</strong> counts different values of a column in the bucket, which is the only one of the three that can count orders or customers on a table whose grain is payments. The tool does not choose for you in any meaningful sense; it picks a default, and a default is not a decision.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What each app records about defaults and distinct count<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Excel.</strong> Microsoft's page on changing a PivotTable's summary function says Sum is "the default function for numeric values" and Count is "the default function for values other than numbers". Follow that through on Ferncastle: order_id is a number, so dragging it into Values gives you the <em>sum of the order IDs</em>, a large, confident and meaningless figure. The same page says Distinct Count "only works when you use the Data Model in Excel", so on an ordinary PivotTable built straight from the sheet it is not on the list. The exact wording of the option you tick to add the data to the Data Model is reported by secondary sources, not read here, so check the dialog in front of you rather than trusting a remembered label.</p>
+        <p><strong>Google Sheets.</strong> A COUNTUNIQUE summary for pivot values is reported only: it appears in Google's Apps Script reference for pivot summary functions, not on the Docs Editors Help pivot pages read for these sessions. Sheets' default summary for a new value field is not recorded here either. The working rule in both apps is the same: read the summary label on every value field before you read its numbers, and never assume a distinct count exists until you have seen it work on rows you can count by hand.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The blank row at the bottom<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A pivot groups by whatever is in the Rows field, including nothing. If the lookup that adds state was wrapped in <code>IFERROR(..., "")</code>, every row that found no customer has an empty state, and the pivot puts all of them in one group with an empty label. On Dev's session 2 build, before the keys were cleaned, that group held 94 rows. It sits at the bottom of a list of 26 states, it looks like housekeeping, and a single filter click hides it for good. The label each app prints for that group is not recorded here; what matters is that it is a bucket of real orders with no state.</p>
+        <p>The professional habit is to make the bucket impossible to miss. Use a visible label such as "NOT FOUND" instead of a blank, as session 2 did, so the group has a name you can count with <code>COUNTIFS</code>. Then the pivot's job is to show a number for it, and yours is to make that number 0 before anyone sees the table.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers counting rows is not counting orders</span>
+      <h2>669 rows, 645 orders, 587 customers</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">Scale the nine rows up to the whole file and the three answers stop being a curiosity. Grouped by state with a clean lookup, Ferncastle's 1,565 rows give SP 669 rows, 645 distinct orders and 587 distinct customers. All three are correct counts. Only one of them answers "how many orders came from SP?", and the pivot will happily print any of the other two under a heading that says orders.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Horizontal bars on one shared scale for three states, three bars each. SP: 669 rows, 645 distinct orders, 587 distinct customers. RJ: 226 rows, 221 orders, 200 customers. MG: 192 rows, 183 orders, 171 customers. A side panel reads SP: 669 minus 645 is 24 extra payment rows; 645 minus 587 is 58 orders after a customer's first; sum of order_value over rows R$ 83,204.30, highlighted, against R$ 80,469.61 over orders.">
+        <defs>
+          <filter id="e4bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="47" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e4bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e4bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e4bH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e4bL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e4bS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e4bV { font: 800 16px Inter, sans-serif; fill: #075C07; }
+          .e4bN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e4bSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="170" y="60" width="440" height="18" transform="rotate(-0.2 390 69)" fill="url(#e4bHc)"/>
+          <rect x="170" y="82" width="424" height="18" transform="rotate(0.2 382 91)" fill="#EDF7EB"/>
+          <rect x="170" y="104" width="386" height="18" transform="rotate(-0.2 363 113)" fill="#FFFFFF"/>
+          <rect x="170" y="140" width="149" height="18" transform="rotate(0.3 244 149)" fill="url(#e4bHc)"/>
+          <rect x="170" y="162" width="145" height="18" transform="rotate(-0.3 242 171)" fill="#EDF7EB"/>
+          <rect x="170" y="184" width="132" height="18" transform="rotate(0.3 236 193)" fill="#FFFFFF"/>
+          <rect x="170" y="220" width="126" height="18" transform="rotate(-0.3 233 229)" fill="url(#e4bHc)"/>
+          <rect x="170" y="242" width="120" height="18" transform="rotate(0.3 230 251)" fill="#EDF7EB"/>
+          <rect x="170" y="264" width="112" height="18" transform="rotate(-0.3 226 273)" fill="#FFFFFF"/>
+          <path d="M170 52 L170 290" stroke="#536356"/>
+          <rect x="680" y="60" width="170" height="222" rx="10" transform="rotate(0.5 765 171)" fill="#FFFFFF"/>
+          <path d="M692 90 Q720 94 748 89 T790 91"/>
+          <rect x="690" y="200" width="150" height="26" rx="3" fill="#FFD84D"/>
+        </g>
+
+        <text class="e4bH" x="30" y="30">THE SAME ROWS, GROUPED BY STATE, COUNTED THREE WAYS</text>
+        <text class="e4bH" x="40" y="95">SP</text>
+        <text class="e4bH" x="40" y="175">RJ</text>
+        <text class="e4bH" x="40" y="255">MG</text>
+        <text class="e4bS" x="76" y="73">rows</text>
+        <text class="e4bS" x="76" y="95">orders</text>
+        <text class="e4bS" x="76" y="117">customers</text>
+        <text class="e4bS" x="76" y="153">rows</text>
+        <text class="e4bS" x="76" y="175">orders</text>
+        <text class="e4bS" x="76" y="197">customers</text>
+        <text class="e4bS" x="76" y="233">rows</text>
+        <text class="e4bS" x="76" y="255">orders</text>
+        <text class="e4bS" x="76" y="277">customers</text>
+        <text class="e4bL" x="620" y="74">669</text>
+        <text class="e4bL" x="604" y="96">645</text>
+        <text class="e4bL" x="566" y="118">587</text>
+        <text class="e4bL" x="329" y="154">226</text>
+        <text class="e4bL" x="325" y="176">221</text>
+        <text class="e4bL" x="312" y="198">200</text>
+        <text class="e4bL" x="306" y="234">192</text>
+        <text class="e4bL" x="300" y="256">183</text>
+        <text class="e4bL" x="292" y="278">171</text>
+
+        <text class="e4bH" x="694" y="84">Reading SP</text>
+        <text class="e4bL" x="694" y="114">669 - 645 = 24 rows</text>
+        <text class="e4bS" x="694" y="130">are extra payments</text>
+        <text class="e4bL" x="694" y="156">645 - 587 = 58 orders</text>
+        <text class="e4bS" x="694" y="172">after a first order</text>
+        <text class="e4bS" x="694" y="194">sum over rows</text>
+        <text class="e4bL" x="698" y="218">R$ 83,204.30</text>
+        <text class="e4bS" x="694" y="246">sum over orders (truth)</text>
+        <text class="e4bV" x="694" y="270">R$ 80,469.61</text>
+
+        <text class="e4bN" x="30" y="312">Pivot canon, computed from Ferncastle's rows (constructed shop, derived Olist rows). Bars share one scale.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three true counts per state, one shared scale; the gap between the first two bars is the double counting, and in SP it is worth R$ 2,734.69</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Read the three numbers for SP<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>669 rows</strong> is what Count gives you on any field of orders.csv grouped by state. It counts payments. <strong>645 distinct orders</strong> is the answer to Imogen's question: 24 of SP's rows are second or later payments of an order already counted. <strong>587 distinct customers</strong> is a different question again: 58 of SP's orders came from a customer who had already ordered. RJ tells the same story at a smaller size, 226 rows, 221 orders, 200 customers, and MG 192, 183, 171.</p>
+        <p>Money follows the rows. Summing order_value over SP's rows gives R$ 83,204.30; summing it once per order gives R$ 80,469.61, which is the true SP revenue. The difference, R$ 2,734.69, is not an error in any formula. Every cell is right. The pivot simply added the same order's value once for every payment, which is exactly what Sum over rows means.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Orders per customer inherits the same trap<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Imogen's second number is orders per customer. Divide rows by customers and you get 1,565 / 1,370 = 1.142. Divide distinct orders by customers and you get 1,508 / 1,370 = 1.101, the true figure. A ratio hides the double counting even better than a total does, because nobody has a feel for whether a repeat rate should be 1.10 or 1.14. Both look reasonable. Only one has a numerator at the right grain.</p>
+        <p>Remember too that Ferncastle's sample over-samples repeat customers on purpose (120 repeat customers alongside 1,250 one-order customers), so 1.101 describes this sample, not Olist as a whole. That is a second kind of "what does this number count?" and it belongs in the footnote of any figure you hand over.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>Same research, different counts.</strong> Raymond Panko's summaries of spreadsheet-error studies are reported here, not read at source, and their headline figures vary by version: an older set of audits found errors in 24% of 367 spreadsheets, later field audits "at least 86%", a later summary 94% of 88. Part of the spread is what was counted. Some studies counted any error, some only serious ones; the samples were small and not random. Panko's caveat is the pivot lesson in another field: a count without a definition of what one unit is cannot be compared with another count.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers totals that reconcile</span>
+      <h2>A grand total is a claim; check it</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">The grand total at the bottom of a pivot looks like proof. It is only the sum of the buckets above it, so it inherits every row the buckets double counted or dropped. The check is a second total computed a different way: revenue over distinct orders. Subtract the pivot's total from it and the sign of the result tells you which quiet path you are on.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Top row: distinct-order revenue R$ 207,300.84 minus the pivot grand total over every row R$ 213,322.43 equals a highlighted control gap of minus R$ 6,021.59. Below, a number line of the control gap with zero in the middle. Left of zero, negative, means rows counted twice: minus R$ 6,021.59 for a clean lookup with no duplicate check. At zero, R$ 0.00 for first rows only, which reconciles. Right of zero, positive, means rows dropped: plus R$ 4,671.89 for the exact lookup with 94 rows lost.">
+        <defs>
+          <filter id="e4cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e4cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e4cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e4cH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e4cL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e4cS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e4cB { font: 800 11px Inter, sans-serif; fill: #5A4300; }
+          .e4cV { font: 800 16px Inter, sans-serif; fill: #075C07; }
+          .e4cK { font: 800 16px Inter, sans-serif; fill: #17221A; }
+          .e4cA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e4cN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e4cSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="56" width="230" height="64" rx="10" transform="rotate(-0.6 155 88)" fill="#EDF7EB"/>
+          <rect x="320" y="56" width="230" height="64" rx="10" transform="rotate(0.5 435 88)" fill="#FFFFFF"/>
+          <rect x="600" y="56" width="240" height="64" rx="10" transform="rotate(-0.4 720 88)" fill="#FFD84D"/>
+          <path d="M80 220 L800 220"/>
+          <path d="M440 210 L440 230"/>
+          <circle cx="140" cy="220" r="6" fill="#FFFFFF"/>
+          <circle cx="440" cy="220" r="6" fill="#EDF7EB"/>
+          <circle cx="673" cy="220" r="6" fill="#FFFFFF"/>
+          <path d="M452 236 L458 242 L470 230"/>
+        </g>
+
+        <text class="e4cH" x="30" y="30">THE CONTROL GAP = DISTINCT-ORDER REVENUE MINUS WHAT THE PIVOT ATTRIBUTED</text>
+        <text class="e4cS" x="56" y="80">distinct-order revenue</text>
+        <text class="e4cV" x="56" y="106">R$ 207,300.84</text>
+        <text class="e4cS" x="344" y="82">pivot grand total, every row</text>
+        <text class="e4cK" x="344" y="104">R$ 213,322.43</text>
+        <text class="e4cB" x="616" y="80">control gap</text>
+        <text class="e4cK" x="616" y="106">minus R$ 6,021.59</text>
+        <text class="e4cK" x="291" y="96" text-anchor="middle">-</text>
+        <text class="e4cK" x="575" y="96" text-anchor="middle">=</text>
+
+        <text class="e4cL" x="140" y="184" text-anchor="middle">- R$ 6,021.59</text>
+        <text class="e4cS" x="140" y="200" text-anchor="middle">clean lookup, no dedup</text>
+        <text class="e4cL" x="440" y="184" text-anchor="middle">R$ 0.00</text>
+        <text class="e4cS" x="440" y="200" text-anchor="middle">first rows only: reconciles</text>
+        <text class="e4cL" x="673" y="184" text-anchor="middle">+ R$ 4,671.89</text>
+        <text class="e4cS" x="673" y="200" text-anchor="middle">exact lookup, 94 rows lost</text>
+        <text class="e4cA" x="80" y="254">← negative: rows counted twice</text>
+        <text class="e4cA" x="800" y="254" text-anchor="end">positive: rows dropped →</text>
+
+        <text class="e4cN" x="30" y="292">Bench canon, computed from Ferncastle's rows. A gap is net: the exact-lookup build drops 94 rows and doubles 57.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one subtraction, and its sign says which way the rows went: below zero they were counted twice, above zero they went missing, at zero the pivot can be trusted</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Read the sign of the gap<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Dev's pivot after session 3 groups all 1,565 rows by state and sums order_value. Its grand total is R$ 213,322.43. Revenue over distinct orders, the first row of each order only, is R$ 207,300.84. The control gap, distinct-order revenue minus what the pivot attributed, is <strong>minus R$ 6,021.59</strong>. Negative means the pivot attributed more money than the orders contain: rows counted twice. It is the same R$ 6,021.59 session 1 found by summing order_value with and without the running count, now showing up inside a pivot.</p>
+        <p>The sign is the diagnosis. On the session 2 build, before the keys were cleaned, the gap was <strong>plus R$ 4,671.89</strong>: rows went missing. That build was also double counting, so the positive number is net, the loss of 94 rows outweighing the 57 doubles. A gap of exactly R$ 0.00 is the only result that lets you hand the breakdown over, and it arrives when the pivot sums one row per order.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the check lives in the sheet<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Put the control total next to the pivot, not in your head. One cell holds distinct-order revenue, written with SUMIFS so a reviewer can read it: <code>=SUMIFS(I2:I1566, J2:J1566, 1)</code>. A second cell points at the pivot's grand total. A third subtracts them and is labelled "control gap, must be 0.00". When someone refreshes the data next month and the grain changes again, that cell is the first thing that moves.</p>
+        <p>COUNTIFS and SUMIFS have the same argument order in both apps, read on both vendors' help pages: COUNTIFS(criteria_range1, criterion1, ...), and SUMIFS with the sum range first. That makes them the portable, checkable twin of any pivot cell. A pivot is quick to build and hard to audit; a COUNTIFS shows its criteria in the formula bar. Charts and dashboards built on top of a reconciled pivot are the job of the <a href="https://phoebefu6.github.io/learn-business-intelligence-with-phoebe/">Business Intelligence sessions</a>.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>A total cannot show what is not in it.</strong> In October 2020 Public Health England said that "15,841 cases between 25 September and 2 October were not included" in reported figures, and stated the cause as "some files containing positive test results exceeded the maximum file size". PHE's statement does not name Excel or a row limit; press reports did. The lesson for a pivot is the shape of the failure: a daily total built from incomplete rows is still a clean-looking number. Only a second count, made independently, can show a positive gap.</p>
+    </div>
+  </section>
+
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Build-along</span>
+      <h2>Pivot Ferncastle by state three ways</h2>
+      <span class="tag demo">★ 22 min · everyone builds</span>
+    </div>
+    <p class="lede">Open the orders.csv and customers.csv you downloaded in session 1, in Excel or in Google Sheets, with the columns from session 3 in place: A order_id, B customer_id, through I order_value, the running count first_row_of_order in J, the cleaned key in L and the state from the exact, cleaned lookup in M. Dev pivots by state, then rebuilds every pivot cell with COUNTIFS and SUMIFS so it can be checked. Every number below is computed from Ferncastle's rows (constructed shop, derived Olist rows); your sheet should print the same.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="On the left, a pivot layout drawn as four boxes: Filters first_row_of_order equals 1, highlighted; Rows state from the clean lookup; Values order_id summarised as Count; Values order_value summarised as Sum. An arrow leads to an output table with two columns, every row and filter equals 1. SP count 669 and 645; SP sum 83,204.30 and 80,469.61; total count 1,565 and 1,508; total sum 213,322.43 and 207,300.84. Below, the same numbers written without a pivot: COUNTIFS of state SP and first row 1 gives 645; SUMIFS of order_value for SP and first row 1 gives 80469.61.">
+        <defs>
+          <filter id="e4dSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="59" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e4dHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e4dAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e4dL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e4dS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e4dB { font: 800 11px Inter, sans-serif; fill: #5A4300; }
+          .e4dV { font: 800 12px Inter, sans-serif; fill: #075C07; }
+          .e4dA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e4dN { font: 400 12px Inter, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e4dSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="48" width="292" height="196" rx="12" transform="rotate(-0.4 186 146)" fill="#EDF7EB"/>
+          <rect x="56" y="64" width="260" height="34" rx="6" transform="rotate(-0.8 186 81)" fill="#FFD84D"/>
+          <rect x="56" y="108" width="260" height="34" rx="6" transform="rotate(0.6 186 125)" fill="#FFFFFF"/>
+          <rect x="56" y="152" width="260" height="34" rx="6" transform="rotate(-0.5 186 169)" fill="#FFFFFF"/>
+          <rect x="56" y="196" width="260" height="34" rx="6" transform="rotate(0.5 186 213)" fill="#FFFFFF"/>
+          <path d="M338 146 L402 146" marker-end="url(#e4dAr)"/>
+          <rect x="410" y="56" width="160" height="28" fill="#EDF7EB"/><rect x="570" y="56" width="130" height="28" fill="#EDF7EB"/><rect x="700" y="56" width="150" height="28" fill="#EDF7EB"/>
+          <rect x="410" y="84" width="160" height="28" fill="#FFFFFF"/><rect x="570" y="84" width="130" height="28" fill="#FFFFFF"/><rect x="700" y="84" width="150" height="28" fill="#FFFFFF"/>
+          <rect x="410" y="112" width="160" height="28" fill="#FFFFFF"/><rect x="570" y="112" width="130" height="28" fill="#FFFFFF"/><rect x="700" y="112" width="150" height="28" fill="#FFFFFF"/>
+          <rect x="410" y="140" width="160" height="28" fill="#FFFFFF"/><rect x="570" y="140" width="130" height="28" fill="#FFFFFF"/><rect x="700" y="140" width="150" height="28" fill="#FFFFFF"/>
+          <rect x="410" y="168" width="160" height="28" fill="#FFFFFF"/><rect x="570" y="168" width="130" height="28" fill="#FFFFFF"/><rect x="700" y="168" width="150" height="28" fill="#FFFFFF"/>
+        </g>
+
+        <text class="e4dA" x="40" y="40">PIVOT LAYOUT</text>
+        <text class="e4dA" x="410" y="40">OUTPUT</text>
+        <text class="e4dB" x="66" y="78">FILTERS</text>
+        <text class="e4dL" x="66" y="92">first_row_of_order = 1</text>
+        <text class="e4dA" x="66" y="122">ROWS</text>
+        <text class="e4dL" x="66" y="136">state (from the clean lookup, M)</text>
+        <text class="e4dA" x="66" y="166">VALUES</text>
+        <text class="e4dL" x="66" y="180">order_id, summarised as Count</text>
+        <text class="e4dA" x="66" y="210">VALUES</text>
+        <text class="e4dL" x="66" y="224">order_value, summarised as Sum</text>
+
+        <text class="e4dA" x="690" y="74" text-anchor="end">every row</text>
+        <text class="e4dA" x="840" y="74" text-anchor="end">filter = 1</text>
+        <text class="e4dL" x="420" y="102">SP · Count</text><text class="e4dL" x="690" y="102" text-anchor="end">669</text><text class="e4dV" x="840" y="102" text-anchor="end">645</text>
+        <text class="e4dL" x="420" y="130">SP · Sum</text><text class="e4dL" x="690" y="130" text-anchor="end">83,204.30</text><text class="e4dV" x="840" y="130" text-anchor="end">80,469.61</text>
+        <text class="e4dL" x="420" y="158">Total · Count</text><text class="e4dL" x="690" y="158" text-anchor="end">1,565</text><text class="e4dV" x="840" y="158" text-anchor="end">1,508</text>
+        <text class="e4dL" x="420" y="186">Total · Sum</text><text class="e4dL" x="690" y="186" text-anchor="end">213,322.43</text><text class="e4dV" x="840" y="186" text-anchor="end">207,300.84</text>
+
+        <text class="e4dS" x="410" y="222">The same numbers without a pivot, in both apps:</text>
+        <text class="e4dL" x="410" y="244">=COUNTIFS(M2:M1566, "SP", J2:J1566, 1)  -&gt; 645</text>
+        <text class="e4dL" x="410" y="266">=SUMIFS(I2:I1566, M2:M1566, "SP", J2:J1566, 1)  -&gt; 80469.61</text>
+
+        <text class="e4dN" x="30" y="312">Computed from Ferncastle's rows (constructed shop, derived Olist rows). Your sheet should print the same.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one filter on the running count turns a pivot of payments into a pivot of orders, and each of its cells has a COUNTIFS or SUMIFS twin you can read</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <p><strong>Check the inputs before you pivot.</strong> A pivot is only as good as the column it groups by. Confirm that every row has a state and that the running count is still there.</p>
+        <div class="prompt-box good"><span class="label">★ Step 1 · inputs</span>Rows with a state label:  =COUNTA(M2:M1566)                    -&gt; 1565
+Rows not found:           =COUNTIFS(M2:M1566, "NOT FOUND")     -&gt; 0
+First rows of an order:   =COUNTIFS(J2:J1566, 1)               -&gt; 1508</div>
+      </div>
+      <div class="step">
+        <p><strong>Build the naive pivot.</strong> Insert a pivot table over A1:M1566. Put state in Rows, order_id in Values and order_value in Values. In Excel, order_id is a number, so its default summary is Sum: switch it to Count before reading anything. In Google Sheets, read the summary each value field shows and pick a count for order_id. Note the SP row and the grand total.</p>
+        <div class="prompt-box good"><span class="label">★ Step 2 · the pivot over every row</span>Rows:    state
+Values:  order_id    (Count)   SP -&gt; 669        Grand total -&gt; 1565
+         order_value (Sum)     SP -&gt; 83204.30   Grand total -&gt; 213322.43</div>
+      </div>
+      <div class="step">
+        <p><strong>Write the checkable twin.</strong> Next to the pivot, rebuild the SP cells with COUNTIFS and SUMIFS. They must match the pivot exactly. If they do not, one of the two is grouping something you did not expect.</p>
+        <div class="prompt-box good"><span class="label">★ Step 3 · the twin (both apps)</span>SP rows:          =COUNTIFS(M2:M1566, "SP")                  -&gt; 669
+SP sum over rows:  =SUMIFS(I2:I1566, M2:M1566, "SP")          -&gt; 83204.3
+Same as the pivot: yes, and both count PAYMENTS</div>
+      </div>
+      <div class="step">
+        <p><strong>Count orders with the running count as a filter.</strong> Drag first_row_of_order (column J) into the pivot's Filters and keep only 1. Every order now contributes exactly one row, so Count is a count of orders and Sum is revenue. Update the twin with a second criterion.</p>
+        <div class="prompt-box good"><span class="label">★ Step 4 · one row per order</span>Pivot, filter J = 1:  SP Count -&gt; 645     SP Sum -&gt; 80469.61
+                       Grand total -&gt; 1508 orders, 207300.84
+Twin:  =COUNTIFS(M2:M1566, "SP", J2:J1566, 1)                -&gt; 645
+       =SUMIFS(I2:I1566, M2:M1566, "SP", J2:J1566, 1)        -&gt; 80469.61
+RJ -&gt; 221 orders · MG -&gt; 183 orders</div>
+      </div>
+      <div class="step">
+        <p><strong>Count customers the same way.</strong> A distinct count of customers needs a first-row marker for customers, built exactly like session 1's running count but on the cleaned key. This works in both apps on an ordinary sheet; Excel's Distinct Count needs the Data Model, and a COUNTUNIQUE pivot summary in Sheets is reported only.</p>
+        <div class="prompt-box good"><span class="label">★ Step 5 · first row of each customer (column Q)</span>Q1:  first_row_of_customer
+Q2:  =COUNTIFS(L$2:L2, L2)
+     fill down to Q1566
+SP customers:  =COUNTIFS(M2:M1566, "SP", Q2:Q1566, 1)       -&gt; 587
+All customers: =COUNTIFS(Q2:Q1566, 1)                       -&gt; 1370
+RJ -&gt; 200 · MG -&gt; 171</div>
+      </div>
+      <div class="step">
+        <p><strong>Reconcile and write the check cell.</strong> Subtract what the pivot attributed from distinct-order revenue, first for the pivot over every row, then for the filtered one. Label the cell so the next person knows what it must say.</p>
+        <div class="prompt-box good"><span class="label">★ Step 6 · the control gap</span>Distinct-order revenue:  =SUMIFS(I2:I1566, J2:J1566, 1)        -&gt; 207300.84
+Pivot over every row:    =SUM(I2:I1566)                        -&gt; 213322.43
+Control gap:             207300.84 - 213322.43                 -&gt; -6021.59  (rows doubled)
+Pivot with J = 1:        207300.84 - 207300.84                 -&gt; 0.00      (reconciles)
+Orders per customer:     1508 / 1370                           -&gt; 1.101</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>Name the summary in the header.</strong> Rename the pivot's value headers to "orders (first rows only)" and "revenue R$, one row per order". A header that says what was counted turns the next reader's question from "is this right?" into "is this what I need?", which is a much faster conversation.</p>
+    </div>
+  </section>
+
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Before session 5</h2>
+      <span class="tag exercise">30 min</span>
+    </div>
+    <ol>
+      <li><strong>Finish the state table.</strong> For SP, RJ, MG, RS and SC, fill in rows, distinct orders and distinct customers with COUNTIFS. Check yourself: RS is 90, 85, 75 and SC is 71, 69, 57.</li>
+      <li><strong>Audit one pivot you already share.</strong> Open a pivot from your own work, write the grain sentence of its source, and say in one line what each value field counts. Add a control-total cell next to it.</li>
+      <li><strong>Break it on purpose.</strong> Copy your Ferncastle sheet, remove the J = 1 filter, and watch the control gap move from R$ 0.00 to minus R$ 6,021.59. Then change one state lookup back to <code>IFERROR(..., "")</code> on a copy of the raw key and find the empty-labelled group.</li>
+      <li><strong>Write the footnote.</strong> One sentence under Imogen's orders-per-customer figure that says what was counted and why 1.101 describes Ferncastle's sample rather than all of Olist.</li>
+    </ol>
+  </section>
+
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+    <p>Clear all three and session 4 gets stamped in your passport.</p>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · In an Excel PivotTable, Dev drags order_id, which is a number, into Values and does nothing else. What does the field show?</p>
+      <button class="qopt" type="button">A · The number of orders in each state</button>
+      <button class="qopt" type="button">B · The sum of the order IDs, because Sum is the default for numeric values</button>
+      <button class="qopt" type="button">C · A distinct count of orders, because order_id is a key</button>
+      <button class="qopt" type="button">D · An error, because IDs cannot be summarised</button>
+      <p class="qwhy">Microsoft's page says Sum is the default for numeric values and Count for values other than numbers. order_id is numeric, so the pivot adds the IDs. Even switched to Count it counts rows, not orders, and Distinct Count needs the Data Model.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Grouped by state, SP has 669 rows, 645 distinct orders and 587 distinct customers. Imogen asks how many orders came from SP. What is the answer?</p>
+      <button class="qopt" type="button">A · 669, because every row is a sale</button>
+      <button class="qopt" type="button">B · 587, because each customer placed one order</button>
+      <button class="qopt" type="button">C · 645, because orders.csv has one row per payment and 24 of SP's rows repeat an order</button>
+      <button class="qopt" type="button">D · It cannot be answered from orders.csv</button>
+      <p class="qwhy">The grain is one payment, so rows overcount orders. Customers undercount them, because 58 of SP's orders came from someone who had already ordered. The running-count filter (J = 1) or a COUNTIFS on it gives 645.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Distinct-order revenue is R$ 207,300.84 and the pivot's grand total is R$ 213,322.43, so the control gap is minus R$ 6,021.59. What does the sign tell Dev?</p>
+      <button class="qopt" type="button">A · The pivot attributed more money than the orders contain, so rows were counted twice</button>
+      <button class="qopt" type="button">B · Rows went missing, so a lookup failed somewhere</button>
+      <button class="qopt" type="button">C · Nothing; the sign of a difference depends only on which number you type first</button>
+      <button class="qopt" type="button">D · The distinct-order total is wrong, because it is the smaller number</button>
+      <p class="qwhy">The gap is defined one way round: distinct-order revenue minus what the pivot attributed. Negative means double counting, positive means rows dropped. Here the 57 extra payment rows add R$ 6,021.59, and filtering to first rows brings the gap to R$ 0.00.</p>
+    </div>
+
+    <p class="quiz-score"></p>
+  </section>
+
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Sources covered</span>
+      <h2>What this session teaches, and where it came from</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support: Change the summary function or custom calculation for a field in a PivotTable</span><span class="note">Read: Sum is the default for numeric values, Count for values other than numbers; Distinct Count only works with the Data Model. The checkbox label is reported only</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support and Google Docs Editors Help: COUNTIFS, SUMIFS</span><span class="note">Argument order read in both: COUNTIFS(criteria_range1, criterion1, ...); SUMIFS(sum_range, criteria_range1, criterion1, ...)</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Google Apps Script reference: PivotTableSummarizeFunction</span><span class="note">Reported: a COUNTUNIQUE pivot summary appears in this enum, not on the Docs Editors Help pivot pages; Sheets' default summary is not recorded</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Olist. Brazilian E-Commerce Public Dataset by Olist. Kaggle. CC BY-NC-SA 4.0</span><span class="note">Ferncastle's rows are a derived, masked sample; the pivot canon (SP 669 / 645 / 587, R$ 83,204.30 against R$ 80,469.61) is computed from them</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Public Health England (5 October 2020). PHE statement on delayed reporting of COVID-19 cases</span><span class="note">15,841 cases not included; cause stated as files exceeding "the maximum file size". Excel is named only in press reports</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Panko, R. R. Spreadsheet error research (1998 onward; EuSpRIG 2000, arXiv:0802.3457)</span><span class="note">Reported: figures vary by version and by what each study counted as an error; caveats taught with the numbers</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Group then summarise, the control gap and its sign</span><span class="note">Common practice assembled here; the gap is defined as distinct-order revenue minus what the pivot attributed, and every value is computed</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ferncastle, Imogen and Dev</span><span class="note">Constructed for teaching; the orders are derived from Olist, the people and the shop are not real</span></div>
+    </div>
+    <p class="mono" style="margin-top:14px">Every fact on this page, and its verification tier, is recorded in the course's source map.</p>
+  </section>
+
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 4 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>What a pivot does</b><span>Groups rows into buckets, then summarises each bucket. It never asks what one row is.</span></div>
+      <div class="cheat-item"><b>Three counts</b><span>Count = rows. Sum = a column over rows. Distinct count = different values. SP: 669 / 645 / 587.</span></div>
+      <div class="cheat-item"><b>Defaults, Excel</b><span>Sum for numbers, Count for other values. order_id is a number: it sums IDs. Distinct Count needs the Data Model.</span></div>
+      <div class="cheat-item"><b>The checkable twin</b><span>=COUNTIFS(M:M, "SP", J:J, 1) and =SUMIFS(I:I, M:M, "SP", J:J, 1). Same argument order in both apps.</span></div>
+      <div class="cheat-item"><b>One row per order</b><span>Filter the running count to 1. Rows 1,565 become 1,508 orders; SP R$ 83,204.30 becomes R$ 80,469.61.</span></div>
+      <div class="cheat-item"><b>The control gap</b><span>Distinct-order revenue minus the pivot total. Negative: doubled. Positive: dropped. Only R$ 0.00 ships.</span></div>
+    </div>
+  </section>
+
+  <div class="callout next">
+    <span class="nx-pill">Next session</span>
+    <p>Dev's pivot now reconciles to R$ 0.00, and it took a running count, a cleaned key, a cleaned date and three helper columns to get there. Session 5 asks the question that sentence raises: when should this work leave the spreadsheet? The row and cell limits as each vendor states them, and the better reasons to move: work that repeats, needs review, or joins more than two tables.</p>
+  </div>
+
+  <footer class="pagefoot">
+    <span>Session 4 of 6 · learn-excel-sheets-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="03-types-that-lie.html">← Prev: Types that lie</a> &nbsp;·&nbsp; <a href="05-when-to-leave.html">Next: When to leave →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

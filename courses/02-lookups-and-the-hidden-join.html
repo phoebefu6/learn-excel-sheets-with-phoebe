@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Session 2 of 6. VLOOKUP goes approximate when you leave out its fourth argument, in both Excel and Google Sheets. XLOOKUP, INDEX/MATCH, first-match rules and IFERROR, and why every lookup is a left join you never wrote down, worked on Ferncastle's 1,565 order rows.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Lookups and the join you didn't know you made - learn excel and sheets with phoebe">
+<meta property="og:description" content="Session 2 of 6. One missing argument moved 1,266 rows to the wrong state on the bench. Exact match, XLOOKUP, INDEX/MATCH and the 94 rows that find nobody.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/courses/02-lookups-and-the-hidden-join.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lookups and the join you didn't know you made - learn excel and sheets with phoebe">
+<meta name="twitter:description" content="Session 2 of 6. The fourth argument, first match wins, and the lookup as a left join.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Session 2 · Lookups and the join you didn't know you made - learn excel and sheets with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-excel-sheets-with-phoebe</a> / Session 2 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Excel &amp; Sheets with Phoebe · Session 2 of 6</div>
+    <h1>Lookups and the <span class="accent">join</span> you didn't know you made</h1>
+    <p class="sub">Every analyst has typed VLOOKUP a thousand times, and most have typed it with three arguments. Leave out the fourth and both Excel and Google Sheets quietly switch to approximate match, which assumes the lookup column is sorted. Ferncastle's customer table is not. Tonight we take the lookup apart: what it compares, where it stops, what it returns when it finds nothing, and why every lookup you write is a join between two tables that you never had to name.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Core</span>
+      <span class="chip audience">Analysts who already live in a spreadsheet</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Fourth argument, three ways, the join</span>
+      <span class="a3" style="flex:5">18-40 · Build-along: four lookups, one count</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where we start</h2>
+    </div>
+    <p class="lede">The running case is constructed. Ferncastle is an invented online kitchenware shop; Imogen, its operations lead, wants revenue by customer state for Monday, and Dev, the analyst, now has to bring the state across from customers.csv into orders.csv. The people and the shop are invented. The rows are not: they are real orders derived and masked from the Brazilian E-Commerce Public Dataset by Olist, so customers sit in Brazilian states such as SP, RJ and ES and money is in reais, R$. Every count on this page is computed from those rows. Every formula works in both Microsoft Excel and Google Sheets unless the page says otherwise.</p>
+
+    <div class="legend">
+      <span class="pill">🎫 Clear all three quiz questions to stamp your passport</span>
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">★ Build-along = do it in your own sheet</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The fourth argument of VLOOKUP written every time, and the reason; XLOOKUP and INDEX/MATCH written exact on purpose; the sentence "a lookup is a left join" and what it predicts (every row stays, one match each, the first one wins); IFERROR recognised as a silencer rather than a fix; and Ferncastle's state column built four ways, ending in a count of exactly 94 rows that find no customer, made visible instead of blank.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers VLOOKUP's fourth argument</span>
+      <h2>The argument you leave out decides the answer</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">VLOOKUP takes four arguments: what to look for, the table to look in, which column to bring back, and how to match. The first three are the ones people remember. The fourth is the one that decides whether the answer is right, and it has a default.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 412" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Top left, one row of orders.csv: order 10002, customer_id 9272, and an empty state cell highlighted. Top right, the first four rows of customers.csv as exported, not sorted: 2307 birigui SP, 9272 santa maria de jetiba ES, 789 volta redonda RJ, 3082 campo grande MS. An arrow carries 9272 over the top into column A, where it matches the second row; a second arrow carries column C of that row, ES, back underneath into the highlighted state cell. Below, the formula VLOOKUP of B2, customers A2 to C1371, 3, FALSE, split into four argument cards: search key, table, column to return, and match type, where FALSE means exact and leaving it out means approximate.">
+        <defs>
+          <filter id="e2aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="52" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e2aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e2aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e2aH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e2aL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e2aS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e2aB { font: 800 11px Inter, sans-serif; fill: #5A4300; }
+          .e2aV { font: 800 16px Inter, sans-serif; fill: #075C07; }
+          .e2aA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e2aN { font: 400 12px Inter, sans-serif; fill: #536356; }
+          .e2aR { font: 800 12px Inter, sans-serif; fill: #991B1B; }
+        </style>
+
+        <g filter="url(#e2aSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="64" width="80" height="26" fill="#EDF7EB"/>
+          <rect x="120" y="64" width="80" height="26" fill="#EDF7EB"/>
+          <rect x="200" y="64" width="80" height="26" fill="#EDF7EB"/>
+          <rect x="40" y="90" width="80" height="26" fill="#FFFFFF"/>
+          <rect x="120" y="90" width="80" height="26" fill="#FFFFFF"/>
+          <rect x="200" y="90" width="80" height="26" fill="#FFD84D"/>
+
+          <rect x="540" y="64" width="90" height="26" fill="#EDF7EB"/>
+          <rect x="630" y="64" width="170" height="26" fill="#EDF7EB"/>
+          <rect x="800" y="64" width="60" height="26" fill="#EDF7EB"/>
+          <rect x="540" y="90" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="630" y="90" width="170" height="26" fill="#FFFFFF"/>
+          <rect x="800" y="90" width="60" height="26" fill="#FFFFFF"/>
+          <rect x="540" y="116" width="90" height="26" fill="url(#e2aHc)"/>
+          <rect x="630" y="116" width="170" height="26" fill="#FFFFFF"/>
+          <rect x="800" y="116" width="60" height="26" fill="url(#e2aHc)"/>
+          <rect x="540" y="142" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="630" y="142" width="170" height="26" fill="#FFFFFF"/>
+          <rect x="800" y="142" width="60" height="26" fill="#FFFFFF"/>
+          <rect x="540" y="168" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="630" y="168" width="170" height="26" fill="#FFFFFF"/>
+          <rect x="800" y="168" width="60" height="26" fill="#FFFFFF"/>
+
+          <path d="M160 62 L160 40 L520 40 L520 129 L536 129" marker-end="url(#e2aAr)"/>
+          <path d="M860 129 L872 129 L872 222 L240 222 L240 122" marker-end="url(#e2aAr)"/>
+
+          <rect x="40" y="256" width="820" height="116" rx="12" transform="rotate(-0.3 450 314)" fill="#EDF7EB" stroke="#0B7F0A"/>
+          <rect x="60" y="296" width="180" height="62" rx="8" transform="rotate(-1.5 150 327)" fill="#FFFFFF"/>
+          <rect x="258" y="296" width="190" height="62" rx="8" transform="rotate(1 353 327)" fill="#FFFFFF"/>
+          <rect x="466" y="296" width="180" height="62" rx="8" transform="rotate(-1 556 327)" fill="#FFFFFF"/>
+          <rect x="664" y="296" width="180" height="62" rx="8" transform="rotate(1.5 754 327)" fill="#FFFFFF" stroke-width="3"/>
+          <path d="M658 290 C700 280 820 282 850 296"/>
+        </g>
+
+        <text class="e2aL" x="300" y="30">1 · 9272 is searched for in column A</text>
+        <text class="e2aA" x="40" y="56">orders.csv</text>
+        <text class="e2aA" x="540" y="56">customers.csv, as exported</text>
+        <text class="e2aS" x="48" y="82">order_id</text>
+        <text class="e2aS" x="128" y="82">customer_id</text>
+        <text class="e2aS" x="208" y="82">state (K)</text>
+        <text class="e2aL" x="48" y="108">10002</text>
+        <text class="e2aL" x="128" y="108">9272</text>
+        <text class="e2aB" x="208" y="108">ES</text>
+        <text class="e2aS" x="548" y="82">A customer_id</text>
+        <text class="e2aS" x="638" y="82">B city</text>
+        <text class="e2aS" x="808" y="82">C state</text>
+        <text class="e2aL" x="548" y="108">2307</text>
+        <text class="e2aS" x="638" y="108">birigui</text>
+        <text class="e2aL" x="808" y="108">SP</text>
+        <text class="e2aL" x="548" y="134">9272</text>
+        <text class="e2aS" x="638" y="134">santa maria de jetiba</text>
+        <text class="e2aL" x="808" y="134">ES</text>
+        <text class="e2aL" x="548" y="160">789</text>
+        <text class="e2aS" x="638" y="160">volta redonda</text>
+        <text class="e2aL" x="808" y="160">RJ</text>
+        <text class="e2aL" x="548" y="186">3082</text>
+        <text class="e2aS" x="638" y="186">campo grande</text>
+        <text class="e2aL" x="808" y="186">MS</text>
+        <text class="e2aS" x="540" y="210">not sorted: 2307, 9272, 789, 3082</text>
+        <text class="e2aL" x="300" y="242">3 · column C of that row comes back</text>
+
+        <text class="e2aL" x="60" y="282">=VLOOKUP(B2, customers!A$2:C$1371, 3, FALSE)</text>
+        <text class="e2aH" x="74" y="318">1 · search key</text>
+        <text class="e2aS" x="74" y="338">B2, the value 9272</text>
+        <text class="e2aH" x="272" y="318">2 · table</text>
+        <text class="e2aS" x="272" y="338">customers!A$2:C$1371</text>
+        <text class="e2aH" x="480" y="318">3 · column to return</text>
+        <text class="e2aS" x="480" y="338">3, the state</text>
+        <text class="e2aH" x="678" y="316">4 · match type</text>
+        <text class="e2aV" x="678" y="336">FALSE = exact</text>
+        <text class="e2aR" x="678" y="352">left out = approximate</text>
+
+        <text class="e2aN" x="30" y="396">Ferncastle rows (constructed shop, derived Olist data). Leave argument 4 out and both apps go approximate.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the key travels into column A, the match is made there, and only then does column 3 come back; argument 4 decides how that match is made</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Omitted means approximate, in both apps<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Microsoft's VLOOKUP page is explicit: if range_lookup is not specified, "the default value will always be TRUE or approximate match". Google's page for Sheets says the same thing in its own words: "If is_sorted is not specified, it is TRUE by default", and TRUE there also means approximate. So <code>=VLOOKUP(B2, customers!A$2:C$1371, 3)</code> and <code>=VLOOKUP(B2, customers!A$2:C$1371, 3, TRUE)</code> are the same formula in both apps.</p>
+        <p>Approximate match is a real tool with a real job: banding a value into a tier table, like a discount that starts at R$ 100 and steps up at R$ 500. For that job, Microsoft's page says the first column must be "sorted alphabetically or numerically". Customer IDs are not tiers, and Ferncastle's customers.csv comes in export order, which is the order of each customer's first purchase: 2307, 9272, 789, 3082 and onward. Ask an approximate lookup to find a customer in that column and it will return a row. Often the wrong one, and nothing in the cell says so.</p>
+        <p>The habit is short: <strong>write the fourth argument every time</strong>. <code>FALSE</code> (or <code>0</code>) for a key; <code>TRUE</code> only for a sorted tier table, and then on purpose. When exact match finds nothing, both apps return <code>#N/A</code>, which is the honest answer and the one you want to see.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why "approximate" produces confident wrong rows<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>An approximate search does not read the column top to bottom. It assumes the column is in order and jumps through it, deciding at each step whether the key lies above or below, and returns the last row that is not bigger than the key. On sorted data that is fast and correct. On unsorted data every jump can go the wrong way, and the search still lands on <em>some</em> row and returns its column 3.</p>
+        <p>Exactly which row it lands on is not documented by either vendor; they only promise correct results on sorted data. That is why the bench in session 6 calls its approximate search <strong>modelled</strong>: it uses a textbook binary search, so its wrong rows are a fair picture of the failure but not a prediction of the exact rows your app returns. What is not modelled is the conclusion: on an unsorted key column, approximate match is wrong by design, not by bad luck.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>1,266 rows in the wrong state.</strong> On the bench, Dev's first build uses VLOOKUP with three arguments against Ferncastle's unsorted customer table. Of 1,565 order rows, 1,266 come back with a state that is not the customer's and 135 come back as #N/A, and SP revenue reads R$ 50,868.14 against a true R$ 80,469.61. The search is modelled, so your app's exact rows will differ; the scale of the damage from one missing argument is the point.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers XLOOKUP and INDEX/MATCH</span>
+      <h2>The same lookup, written three ways</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">Every lookup does the same two things: search one column for the key, return the value from another column on the matching row. The three common ways to write it differ in what they default to, what they show when nothing matches, and which columns they can return.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 352" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three lanes, one per formula. Lane one, VLOOKUP exact: the table is customers columns A to C, column A is searched and column C returned; argument 4 left out means approximate and not found shows #N/A. Lane two, XLOOKUP: column A is given as the search range and column C as the return range; exact by default and not found shows your own text. Lane three, INDEX with MATCH zero: MATCH searches column A and INDEX returns from column C; write 0 because MATCH defaults to 1 on Microsoft's page; INDEX can return a column to the left of the searched one. In each lane the searched column is hatched and the returned column is green, joined by a curved arrow.">
+        <defs>
+          <filter id="e2bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="63" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e2bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e2bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e2bH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e2bL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e2bS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e2bA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e2bN { font: 400 12px Inter, sans-serif; fill: #536356; }
+          .e2bR { font: 800 12px Inter, sans-serif; fill: #991B1B; }
+        </style>
+
+        <g filter="url(#e2bSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="520" y="60" width="100" height="40" transform="rotate(-0.8 570 80)" fill="url(#e2bHc)"/>
+          <rect x="620" y="60" width="100" height="40" transform="rotate(0.6 670 80)" fill="#FFFFFF"/>
+          <rect x="720" y="60" width="100" height="40" transform="rotate(-0.5 770 80)" fill="#EDF7EB"/>
+          <path d="M570 104 Q670 128 766 104" marker-end="url(#e2bAr)"/>
+
+          <rect x="520" y="150" width="100" height="40" transform="rotate(0.7 570 170)" fill="url(#e2bHc)"/>
+          <rect x="620" y="150" width="100" height="40" transform="rotate(-0.6 670 170)" fill="#FFFFFF"/>
+          <rect x="720" y="150" width="100" height="40" transform="rotate(0.5 770 170)" fill="#EDF7EB"/>
+          <path d="M570 194 Q670 218 766 194" marker-end="url(#e2bAr)"/>
+
+          <rect x="520" y="240" width="100" height="40" transform="rotate(-0.6 570 260)" fill="url(#e2bHc)"/>
+          <rect x="620" y="240" width="100" height="40" transform="rotate(0.8 670 260)" fill="#FFFFFF"/>
+          <rect x="720" y="240" width="100" height="40" transform="rotate(-0.7 770 260)" fill="#EDF7EB"/>
+          <path d="M570 284 Q670 308 766 284" marker-end="url(#e2bAr)"/>
+          <path d="M570 236 C560 222 540 222 528 232" stroke-dasharray="4 4"/>
+        </g>
+
+        <text class="e2bA" x="520" y="40">SEARCHED (hatched) · RETURNED (green)</text>
+        <text class="e2bA" x="40" y="40">CUSTOMERS!A:C, WHOLE COLUMNS FOR THE DRAWING</text>
+
+        <text class="e2bH" x="40" y="72">1 · VLOOKUP, exact</text>
+        <text class="e2bL" x="40" y="92">=VLOOKUP(B2, customers!A:C, 3, FALSE)</text>
+        <text class="e2bS" x="40" y="112">argument 4 left out = approximate; not found = #N/A</text>
+        <text class="e2bL" x="550" y="85">A id</text>
+        <text class="e2bL" x="650" y="85">B city</text>
+        <text class="e2bL" x="745" y="85">C state</text>
+
+        <text class="e2bH" x="40" y="162">2 · XLOOKUP</text>
+        <text class="e2bL" x="40" y="182">=XLOOKUP(B2, customers!A:A, customers!C:C, "NOT FOUND")</text>
+        <text class="e2bS" x="40" y="202">exact by default; not found shows your text</text>
+        <text class="e2bL" x="550" y="175">A id</text>
+        <text class="e2bL" x="650" y="175">B city</text>
+        <text class="e2bL" x="745" y="175">C state</text>
+
+        <text class="e2bH" x="40" y="252">3 · INDEX with MATCH 0</text>
+        <text class="e2bL" x="40" y="272">=INDEX(customers!C:C, MATCH(B2, customers!A:A, 0))</text>
+        <text class="e2bS" x="40" y="292">write 0: MATCH defaults to 1 (Microsoft); not found = #N/A</text>
+        <text class="e2bL" x="550" y="265">A id</text>
+        <text class="e2bL" x="650" y="265">B city</text>
+        <text class="e2bL" x="745" y="265">C state</text>
+        <text class="e2bS" x="836" y="232" text-anchor="end">INDEX can also return left</text>
+
+        <text class="e2bN" x="30" y="336">VLOOKUP returns only from the right of its first column; XLOOKUP and INDEX/MATCH name both columns.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - all three search one column and return another; only XLOOKUP is exact without being told, and only VLOOKUP is locked to returning from the right</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>XLOOKUP: exact by default, and a name for "not found"<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>XLOOKUP takes the search column and the return column separately: <code>=XLOOKUP(B2, customers!A$2:A$1371, customers!C$2:C$1371, "NOT FOUND")</code>. The argument order is the same in both apps. Microsoft's page says match mode 0, exact match, "is the default"; Google's page says match_mode is "0 by default". So the trap from Part 1 is gone: leave the match argument out and you get exact.</p>
+        <p>The fourth argument is the part to fall in love with. Microsoft calls it if_not_found, Google calls it missing_value, and in both it replaces the <code>#N/A</code> a failed match would show (Google states the default is "#N/A"). Put a word there, such as <code>"NOT FOUND"</code>, and every row that matched nobody now says so in plain text that you can filter, count and show to Imogen.</p>
+        <p>One version note, stated exactly as Microsoft's page states it: XLOOKUP is not available in Excel 2016 and Excel 2019. If you are on one of those, use INDEX/MATCH below; it does the same job.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>INDEX/MATCH: write the 0, and look left when you need to<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>INDEX/MATCH splits the lookup into its two halves. <code>MATCH(B2, customers!A$2:A$1371, 0)</code> searches column A and returns a position, such as 2 for the second row. <code>INDEX(customers!C$2:C$1371, 2)</code> returns whatever sits at that position in column C. Together: <code>=INDEX(customers!C$2:C$1371, MATCH(B2, customers!A$2:A$1371, 0))</code>, which works in both apps.</p>
+        <p>The 0 is not decoration. Microsoft's MATCH page says "The default value for this argument is 1", which finds the largest value less than or equal to the key and needs the column in ascending order: the same sorted-data assumption as approximate VLOOKUP. Type 0 finds "the first value that is exactly equal". The Sheets MATCH page is not among the pages read for these notes, so treat the default there as unchecked and write the 0 in both apps; it costs one character.</p>
+        <p>Because INDEX and MATCH each take their own column, the returned column can sit anywhere, including to the left of the one you search. VLOOKUP cannot do that: it always searches the first column of its table and returns from a column to its right. If you have ever rearranged a sheet's columns to make VLOOKUP work, INDEX/MATCH (or XLOOKUP) was the tool you wanted.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The same 94 rows, three ways.</strong> On Ferncastle's export, VLOOKUP with FALSE, XLOOKUP and INDEX/MATCH with 0 all agree: every row whose customer_id is a clean number finds its customer, and the same 94 rows find nobody. They differ only in what those 94 rows look like: #N/A from VLOOKUP and INDEX/MATCH, and whatever word you chose from XLOOKUP. Agreement between two methods is itself a check worth keeping in the sheet.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the lookup as a left join</span>
+      <h2>Every lookup is a join</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">When Dev fills a state column down orders.csv, he is doing what a database calls a left join: keep every row of the left table, and attach at most one value from the right table to each. Saying it that way predicts three behaviours the formula never announces: no row is added or removed, a repeated key returns only its first match, and a row that matches nothing still stays, carrying an error or whatever you replaced the error with.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 386" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Top, a join drawn between two tables. Left, four rows of orders.csv: 10001 with customer 2307 gets SP; 10002 with customer 9272 gets ES; a second row of 10002 with 9272 also gets ES; 10004 with customer text 03082 has a dashed join line that stops short, marked text so no match, and its state cell is highlighted and blank because IFERROR turned the #N/A into an empty string. Right, customers.csv rows 2307 SP, 9272 ES, 789 RJ, 3082 MS. Bottom, first match wins: a lookup of order 10002 into orders.csv finds two rows, credit_card first and voucher second; credit_card is returned and the voucher row is never reached.">
+        <defs>
+          <filter id="e2cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="74" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e2cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e2cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e2cH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e2cL { font: 600 12px Inter, sans-serif; fill: #17221A; }
+          .e2cS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e2cA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e2cN { font: 400 12px Inter, sans-serif; fill: #536356; }
+          .e2cR { font: 800 12px Inter, sans-serif; fill: #991B1B; }
+          .e2cG { font: 800 12px Inter, sans-serif; fill: #075C07; }
+        </style>
+
+        <g filter="url(#e2cSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="76" width="90" height="24" fill="#EDF7EB"/>
+          <rect x="130" y="76" width="90" height="24" fill="#EDF7EB"/>
+          <rect x="220" y="76" width="80" height="24" fill="#EDF7EB"/>
+          <rect x="40" y="100" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="130" y="100" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="220" y="100" width="80" height="26" fill="#FFFFFF"/>
+          <rect x="40" y="126" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="130" y="126" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="220" y="126" width="80" height="26" fill="#FFFFFF"/>
+          <rect x="40" y="152" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="130" y="152" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="220" y="152" width="80" height="26" fill="#FFFFFF"/>
+          <rect x="40" y="178" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="130" y="178" width="90" height="26" fill="#FFFFFF"/>
+          <rect x="220" y="178" width="80" height="26" fill="#FFD84D" stroke-dasharray="4 4"/>
+
+          <rect x="580" y="76" width="120" height="24" fill="#EDF7EB"/>
+          <rect x="700" y="76" width="80" height="24" fill="#EDF7EB"/>
+          <rect x="580" y="100" width="120" height="26" fill="#FFFFFF"/>
+          <rect x="700" y="100" width="80" height="26" fill="#FFFFFF"/>
+          <rect x="580" y="126" width="120" height="26" fill="#FFFFFF"/>
+          <rect x="700" y="126" width="80" height="26" fill="#FFFFFF"/>
+          <rect x="580" y="152" width="120" height="26" fill="#FFFFFF"/>
+          <rect x="700" y="152" width="80" height="26" fill="#FFFFFF"/>
+          <rect x="580" y="178" width="120" height="26" fill="#FFFFFF"/>
+          <rect x="700" y="178" width="80" height="26" fill="#FFFFFF"/>
+
+          <path d="M304 113 L574 113" marker-end="url(#e2cAr)"/>
+          <path d="M304 139 L574 139" marker-end="url(#e2cAr)"/>
+          <path d="M304 165 L574 141" marker-end="url(#e2cAr)"/>
+          <path d="M304 191 L420 191" stroke-dasharray="5 5"/>
+
+          <rect x="40" y="290" width="200" height="40" rx="8" transform="rotate(-1.5 140 310)" fill="#FFFFFF"/>
+          <path d="M246 303 L374 303" marker-end="url(#e2cAr)"/>
+          <rect x="380" y="290" width="90" height="26" fill="#EDF7EB"/>
+          <rect x="470" y="290" width="120" height="26" fill="#EDF7EB"/>
+          <rect x="380" y="316" width="90" height="26" fill="url(#e2cHc)"/>
+          <rect x="470" y="316" width="120" height="26" fill="url(#e2cHc)"/>
+          <path d="M596 303 L704 303" marker-end="url(#e2cAr)"/>
+          <path d="M376 296 C366 300 366 336 376 340"/>
+        </g>
+
+        <text class="e2cA" x="40" y="62">orders.csv: every row stays</text>
+        <text class="e2cA" x="580" y="62">customers.csv: the lookup side</text>
+        <text class="e2cS" x="48" y="93">order_id</text>
+        <text class="e2cS" x="138" y="93">customer_id</text>
+        <text class="e2cS" x="228" y="93">state</text>
+        <text class="e2cL" x="48" y="118">10001</text>
+        <text class="e2cL" x="138" y="118">2307</text>
+        <text class="e2cG" x="228" y="118">SP</text>
+        <text class="e2cL" x="48" y="144">10002</text>
+        <text class="e2cL" x="138" y="144">9272</text>
+        <text class="e2cG" x="228" y="144">ES</text>
+        <text class="e2cL" x="48" y="170">10002</text>
+        <text class="e2cL" x="138" y="170">9272</text>
+        <text class="e2cG" x="228" y="170">ES</text>
+        <text class="e2cL" x="48" y="196">10004</text>
+        <text class="e2cL" x="138" y="196">"03082"</text>
+        <text class="e2cR" x="430" y="195">text, so no match</text>
+        <text class="e2cS" x="588" y="93">customer_id</text>
+        <text class="e2cS" x="708" y="93">state</text>
+        <text class="e2cL" x="588" y="118">2307</text>
+        <text class="e2cL" x="708" y="118">SP</text>
+        <text class="e2cL" x="588" y="144">9272</text>
+        <text class="e2cL" x="708" y="144">ES</text>
+        <text class="e2cL" x="588" y="170">789</text>
+        <text class="e2cL" x="708" y="170">RJ</text>
+        <text class="e2cL" x="588" y="196">3082</text>
+        <text class="e2cL" x="708" y="196">MS</text>
+        <text class="e2cS" x="40" y="224">yellow cell: IFERROR(..., "") turned #N/A into a blank</text>
+        <text class="e2cS" x="580" y="224">two order rows can share one customer</text>
+
+        <text class="e2cH" x="40" y="270">FIRST MATCH WINS WHEN THE KEY REPEATS</text>
+        <text class="e2cL" x="54" y="308">payment_type of 10002?</text>
+        <text class="e2cS" x="54" y="324">looked up in orders.csv</text>
+        <text class="e2cL" x="388" y="308">10002</text>
+        <text class="e2cL" x="478" y="308">credit_card</text>
+        <text class="e2cL" x="388" y="334">10002</text>
+        <text class="e2cL" x="478" y="334">voucher</text>
+        <text class="e2cG" x="712" y="308">returned</text>
+        <text class="e2cR" x="604" y="334">never reached</text>
+
+        <text class="e2cN" x="30" y="370">Constructed shop, derived Olist rows. Microsoft: XLOOKUP and MATCH 0 return the first match they find.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the left table keeps all its rows, the repeated key hands back only its first row, and the yellow blank is a row that matched nobody wearing a disguise</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What "left join" predicts<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Fill a lookup down 1,565 order rows and you still have 1,565 rows. That is the first prediction: the left table never grows or shrinks, so a lookup cannot fix a grain problem. The 57 payment rows from session 1 are still there after the state arrives, each carrying its order's value and now its customer's state, ready to be counted twice.</p>
+        <p>The second prediction is about the right table. A left join attaches one value per row, so when the key repeats on the right side, something has to choose. Microsoft's XLOOKUP page says it returns "the first match it finds", and its MATCH page says type 0 finds "the first value that is exactly equal". Look up order 10002 in orders.csv to fetch its payment type and you get credit_card, from the first of its two rows; the voucher row is never reached. Neither vendor page read for these notes states the rule for VLOOKUP or for Sheets, so test it on order 10002 in your own app rather than assuming.</p>
+        <p>The third prediction is the dangerous one: a row that matches nothing still stays. It carries <code>#N/A</code>, which is loud, until someone makes it quiet.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>IFERROR is a silencer, not a fix<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Microsoft's page describes IFERROR exactly: it "returns a value you specify if a formula evaluates to an error; otherwise, it returns the result of the formula". It does not care which error, or why. <code>=IFERROR(VLOOKUP(B2, customers!A$2:C$1371, 3, FALSE), "")</code> turns every <code>#N/A</code> into an empty-looking cell, and Google's page notes that in Sheets, leaving out the second argument altogether returns a blank too (that one-argument form is Sheets only; Excel asks for both).</p>
+        <p>On Ferncastle, that blank lands on 94 order rows. A pivot of revenue by state then has nowhere to put them: they drop into a blank group or out of the total, and every state's figure is a little low. The sheet looks cleaner than before, which is precisely the problem. The professional norm is to make a failed match <em>louder</em>, not quieter: replace the error with a word, <code>"NOT FOUND"</code>, and count it. If the count is not zero, the work is not finished.</p>
+        <p>Writing joins down by name, where a reviewer can read which rows were kept, is what SQL is for; session 5 covers when to hand the job over to the <a href="https://phoebefu6.github.io/learn-sql-with-phoebe/">SQL course</a>.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>A spreadsheet in an economics argument.</strong> In 2013 Herndon, Ash and Pollin reported that Reinhart and Rogoff's widely cited 2010 analysis of public debt and growth had "coding errors, selective exclusion of available data, and unconventional weighting", and that corrected average growth for countries above 90 percent debt was 2.2 percent rather than about minus 0.1. How many countries a spreadsheet range left out, and Reinhart and Rogoff's reply disputing how much the correction changes their conclusion, are reported rather than read here. Both halves belong in the story: rows that quietly fell outside a calculation, and an honest disagreement about what the corrected number means.</p>
+    </div>
+  </section>
+
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Build-along</span>
+      <h2>Bring the state across, four ways</h2>
+      <span class="tag demo">★ 22 min · everyone builds</span>
+    </div>
+    <p class="lede">Open the orders.csv and customers.csv you downloaded in session 1, in Excel or in Google Sheets, and put customers on a second tab named <code>customers</code>. Orders keep their columns: A order_id, B customer_id, through I order_value, with the running count from session 1 in J. Customers has A customer_id, B city, C state, with 1,370 customers in rows 2 to 1371. Dev adds the state four ways and counts what each one does. The counts below are the bench's, computed from the same rows.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 262" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four cards left to right joined by arrows. Card one, approximate: 1,266 wrong rows, 135 #N/A swallowed, SP revenue R$ 50,868.14, modelled binary search. Card two, exact with FALSE: 0 wrong rows, 94 #N/A, SP revenue R$ 79,323.10. Card three, XLOOKUP: NOT FOUND shown in words on 94 rows, still 0 wrong. Card four, highlighted, count them: 94 rows with no customer, 67 zero-padded and 27 with a trailing space. A note says counts come from the bench and the approximate rung models binary search, so your app's wrong rows will differ.">
+        <defs>
+          <filter id="e2dSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="85" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e2dHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e2dAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e2dH { font: 800 12px Inter, sans-serif; fill: #17221A; }
+          .e2dS { font: 400 11px Inter, sans-serif; fill: #536356; }
+          .e2dB { font: 800 11px Inter, sans-serif; fill: #5A4300; }
+          .e2dV { font: 800 18px Inter, sans-serif; fill: #075C07; }
+          .e2dA { font: 700 11px Inter, sans-serif; fill: #0B7F0A; }
+          .e2dN { font: 400 12px Inter, sans-serif; fill: #536356; }
+          .e2dR { font: 800 18px Inter, sans-serif; fill: #991B1B; }
+        </style>
+
+        <g filter="url(#e2dSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="30" y="70" width="180" height="130" rx="10" transform="rotate(-1 120 135)" fill="#FEF2F2" stroke="#FCA5A5"/>
+          <rect x="250" y="70" width="180" height="130" rx="10" transform="rotate(0.8 340 135)" fill="#FFFFFF"/>
+          <rect x="470" y="70" width="180" height="130" rx="10" transform="rotate(-0.7 560 135)" fill="#EDF7EB"/>
+          <rect x="690" y="70" width="170" height="130" rx="10" transform="rotate(1 775 135)" fill="#FFD84D"/>
+          <path d="M214 135 L244 135" marker-end="url(#e2dAr)"/>
+          <path d="M434 135 L464 135" marker-end="url(#e2dAr)"/>
+          <path d="M654 135 L684 135" marker-end="url(#e2dAr)"/>
+          <path d="M704 133 C720 137 738 137 752 132"/>
+        </g>
+
+        <text class="e2dH" x="30" y="36">SAME KEY COLUMN, FOUR WAYS</text>
+        <text class="e2dA" x="30" y="56">rungs 1 and 2 of the bench, computed from Ferncastle's 1,565 order rows</text>
+
+        <text class="e2dH" x="44" y="96">1 · approximate</text>
+        <text class="e2dR" x="44" y="126">1,266 wrong</text>
+        <text class="e2dS" x="44" y="152">135 #N/A swallowed</text>
+        <text class="e2dS" x="44" y="170">SP revenue R$ 50,868.14</text>
+        <text class="e2dS" x="44" y="188">modelled binary search</text>
+
+        <text class="e2dH" x="264" y="96">2 · exact (FALSE)</text>
+        <text class="e2dV" x="264" y="126">0 wrong</text>
+        <text class="e2dS" x="264" y="152">94 #N/A</text>
+        <text class="e2dS" x="264" y="170">SP revenue R$ 79,323.10</text>
+        <text class="e2dS" x="264" y="188">exact: no guessing</text>
+
+        <text class="e2dH" x="484" y="96">3 · XLOOKUP</text>
+        <text class="e2dV" x="484" y="126">NOT FOUND</text>
+        <text class="e2dS" x="484" y="152">on 94 rows, in words</text>
+        <text class="e2dS" x="484" y="170">the #N/A gets a name</text>
+        <text class="e2dS" x="484" y="188">still 0 wrong</text>
+
+        <text class="e2dH" x="704" y="96">4 · count</text>
+        <text class="e2dV" x="704" y="126">94</text>
+        <text class="e2dB" x="704" y="152">rows with no customer</text>
+        <text class="e2dB" x="704" y="170">67 zero-padded</text>
+        <text class="e2dB" x="704" y="188">+ 27 trailing space</text>
+
+        <text class="e2dN" x="30" y="232">Counts from the bench; the approximate rung models binary search, so your app's wrong rows will differ.</text>
+        <text class="e2dN" x="30" y="250">Truth for SP is R$ 80,469.61; sessions 3 and 4 close the rest of the gap.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - exact match takes the wrong rows from 1,266 to 0; naming the failure turns 94 invisible rows into one number you can act on</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <p><strong>Set up and say what you expect.</strong> Check both tabs, then write the expectation down before any formula: every order row should find exactly one customer, so the state column should have 1,565 filled cells and no errors.</p>
+        <div class="prompt-box good"><span class="label">★ Step 1 · the setup, written down</span>orders tab:     A order_id, B customer_id, ... I order_value, J first_row_of_order
+customers tab:  A customer_id, B city, C state   (rows 2-1371, 1,370 customers)
+Expect:         1,565 order rows in, 1,565 out, one state each, 0 errors
+Note:           customers is in export order, NOT sorted</div>
+      </div>
+      <div class="step">
+        <p><strong>Lookup one: VLOOKUP with three arguments.</strong> This is the formula most people write. Fill it down, then count its errors with a formula that works in both apps.</p>
+        <div class="prompt-box good"><span class="label">★ Step 2 · approximate, the default (column K, both apps)</span>K1:  state_approx
+K2:  =VLOOKUP(B2, customers!$A$2:$C$1371, 3)
+     fill down to K1566
+Count #N/A:  =SUMPRODUCT(--ISNA(K2:K1566))
+Bench (modelled search): 135 #N/A. Your app's count may differ.</div>
+      </div>
+      <div class="step">
+        <p><strong>Lookup two: VLOOKUP with FALSE.</strong> Same formula, fourth argument written. Count the errors again. This count does not depend on how your app searches, so it should match exactly.</p>
+        <div class="prompt-box good"><span class="label">★ Step 3 · exact (column L, both apps)</span>L1:  state_exact
+L2:  =VLOOKUP(B2, customers!$A$2:$C$1371, 3, FALSE)
+     fill down to L1566
+Count #N/A:  =SUMPRODUCT(--ISNA(L2:L1566))
+-&gt; 94</div>
+      </div>
+      <div class="step">
+        <p><strong>Compare the two columns row by row.</strong> A helper column labels every row. Where both lookups found something and disagree, the approximate one is wrong, because exact match only returns the customer whose ID is equal to the key.</p>
+        <div class="prompt-box good"><span class="label">★ Step 4 · how many rows moved (column M, both apps)</span>M1:  approx_vs_exact
+M2:  =IF(ISNA(L2), "exact missed", IF(ISNA(K2), "approx missed", IF(K2=L2, "same", "wrong")))
+     fill down to M1566
+Count:  =COUNTIFS(M2:M1566, "wrong")
+Bench, against cleaned keys: 1,266 wrong rows. Your count will differ:
+your app's search is its own, and this column skips the 94 rows exact missed.
+Any count above 0 means approximate match moved customers to the wrong state.</div>
+      </div>
+      <div class="step">
+        <p><strong>Lookup three: give the failure a name.</strong> XLOOKUP with a fourth argument puts a word where the error was. On Excel 2016 or 2019, where Microsoft's page says XLOOKUP is not available, use the INDEX/MATCH line instead: the label is what matters, not the function.</p>
+        <div class="prompt-box good"><span class="label">★ Step 5 · named not-found (column N)</span>N1:  state
+N2:  =XLOOKUP(B2, customers!$A$2:$A$1371, customers!$C$2:$C$1371, "NOT FOUND")
+     both apps (not in Excel 2016 or 2019)
+
+Or, in either app:
+N2:  =IFERROR(INDEX(customers!$C$2:$C$1371, MATCH(B2, customers!$A$2:$A$1371, 0)), "NOT FOUND")
+     fill down to N1566</div>
+      </div>
+      <div class="step">
+        <p><strong>Lookup four: count the named rows, then look at them.</strong> The count is your control number for the state column. Filter column N for NOT FOUND and read column B: you will see IDs such as "03082" on order 10004 and "7060 " with a space after it. Customer 3082 and customer 7060 are both in the customers table; their IDs in orders.csv are text. Session 3 repairs them.</p>
+        <div class="prompt-box good"><span class="label">★ Step 6 · the control number (both apps)</span>=COUNTIFS(N2:N1566, "NOT FOUND")
+-&gt; 94
+   = 67 zero-padded ("03082") + 27 trailing space ("7060 ")
+Wrong rows on the exact columns:  0
+Rows still counted twice (session 1's 57 payments): unchanged</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>Keep the NOT FOUND count next to the column it checks.</strong> One cell that says 94 today and must say 0 before Monday. Delete K, L and M when you are done; keep N and its count. A lookup column without a not-found count is a join nobody has checked.</p>
+    </div>
+  </section>
+
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Before session 3</h2>
+      <span class="tag exercise">30 min</span>
+    </div>
+    <ol>
+      <li><strong>Audit three lookups you rely on.</strong> In sheets you use at work, find three VLOOKUP formulas and check the fourth argument. For each one that is missing, write FALSE and note whether any result changed.</li>
+      <li><strong>Test the first-match rule in your own app.</strong> Look up order 10002 in Ferncastle's orders.csv with VLOOKUP FALSE, XLOOKUP and INDEX/MATCH 0, returning payment_type. Write down what each returns, and in which app.</li>
+      <li><strong>Hunt one IFERROR.</strong> Find an IFERROR that returns "" or 0 in a sheet you share. Replace the empty result with "NOT FOUND", count it, and write down the count, even if it is zero.</li>
+      <li><strong>Say the join out loud.</strong> For one lookup of your own, write the sentence: "every row of ___ keeps its row and gets at most one ___ from ___, matched on ___." Note whether the right-hand key can repeat.</li>
+    </ol>
+  </section>
+
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+    <p>Clear all three and session 2 gets stamped in your passport.</p>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Dev writes =VLOOKUP(B2, customers!A$2:C$1371, 3) with no fourth argument. What does it do in Excel and in Google Sheets?</p>
+      <button class="qopt" type="button">A · Exact match in Excel, approximate in Sheets</button>
+      <button class="qopt" type="button">B · Approximate match in both, which assumes column A is sorted, so on Ferncastle's unsorted customer table it returns wrong rows without warning</button>
+      <button class="qopt" type="button">C · Exact match in both, because customer IDs are numbers</button>
+      <button class="qopt" type="button">D · An error in both, because the fourth argument is required</button>
+      <p class="qwhy">Microsoft's page says an unspecified range_lookup is "TRUE or approximate match"; Google's says is_sorted is "TRUE by default". Approximate match needs a sorted first column. On the bench, three arguments put 1,266 of 1,565 rows in the wrong state.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="3">
+      <p class="qtext">2 · Dev's exact lookup returns #N/A on 94 rows, so he wraps it in IFERROR(..., ""). The column now looks clean. What actually happened?</p>
+      <button class="qopt" type="button">A · The 94 rows were matched to their customers</button>
+      <button class="qopt" type="button">B · The 94 rows were removed from the table</button>
+      <button class="qopt" type="button">C · Nothing changed except the formatting</button>
+      <button class="qopt" type="button">D · The 94 rows are still there with no state, now disguised as blanks, so every state total will be quietly low; a word such as "NOT FOUND" and a count would have kept them visible</button>
+      <p class="qwhy">IFERROR returns the value you specify whenever there is an error, any error. A lookup is a left join: rows that match nothing stay. Making the failure louder ("NOT FOUND", then COUNTIFS = 94) is the professional norm; making it quieter is how rows go missing from a report.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Looking up order 10002 in orders.csv to fetch payment_type returns credit_card, but the order was also paid by voucher. Why?</p>
+      <button class="qopt" type="button">A · order_id repeats in orders.csv, and the lookup returns the first matching row; Microsoft's pages say XLOOKUP returns the first match it finds and MATCH type 0 the first value exactly equal</button>
+      <button class="qopt" type="button">B · Voucher payments are not stored in the export</button>
+      <button class="qopt" type="button">C · The lookup returned the larger payment</button>
+      <button class="qopt" type="button">D · The lookup was approximate</button>
+      <p class="qwhy">A lookup attaches one value per row, so a repeated key on the lookup side hands back only one of its rows: the first. The voucher row is never reached. Before looking up into a table, check that its key is unique with the running count from session 1.</p>
+    </div>
+
+    <p class="quiz-score"></p>
+  </section>
+
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Sources covered</span>
+      <h2>What this session teaches, and where it came from</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support: VLOOKUP function</span><span class="note">Unspecified range_lookup is "TRUE or approximate match"; approximate needs the first column sorted; #N/A when an exact value is not found</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google Docs Editors Help: VLOOKUP</span><span class="note">"If is_sorted is not specified, it is TRUE by default" (approximate): the same trap as Excel</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support: XLOOKUP function</span><span class="note">Exact match is the default; returns the first match it finds; if_not_found replaces #N/A; not available in Excel 2016 and 2019</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google Docs Editors Help: XLOOKUP function</span><span class="note">match_mode 0 (exact) by default; missing_value #N/A by default</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support: MATCH function</span><span class="note">match_type defaults to 1 and needs ascending order; 0 finds the first value exactly equal. The Sheets MATCH page was not read: write 0 in both apps</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support: IFERROR function; Google Docs Editors Help: IFERROR function</span><span class="note">Returns a value you specify on any error; in Sheets a missing second argument returns blank</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support and Google Docs Editors Help: COUNTIFS</span><span class="note">COUNTIFS(criteria_range1, criterion1, ...) in both apps, used for the NOT FOUND control count</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Olist. Brazilian E-Commerce Public Dataset by Olist. Kaggle. CC BY-NC-SA 4.0</span><span class="note">Ferncastle's rows are a derived, masked sample of 1,508 delivered orders; every count on the page is computed from them</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Herndon, Ash and Pollin (2013), PERI working paper 322</span><span class="note">Abstract read: coding errors, selective exclusion, weighting; 2.2 percent against about minus 0.1. The country count and Reinhart and Rogoff's reply are reported</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">The lookup as a left join; IFERROR as a silencer</span><span class="note">Common practice assembled here; the approximate rung's wrong rows come from a modelled binary search</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ferncastle, Imogen and Dev</span><span class="note">Constructed for teaching; the orders are derived from Olist, the people and the shop are not real</span></div>
+    </div>
+    <p class="mono" style="margin-top:14px">Every fact on this page, and its verification tier, is recorded in the course's source map.</p>
+  </section>
+
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 2 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Write argument 4</b><span>=VLOOKUP(key, table, col, FALSE). Left out means approximate in Excel and Sheets alike.</span></div>
+      <div class="cheat-item"><b>Approximate needs sorted</b><span>Only for sorted tier tables. On an unsorted key column it returns wrong rows: 1,266 on the bench.</span></div>
+      <div class="cheat-item"><b>XLOOKUP</b><span>Exact by default; 4th argument names not-found: "NOT FOUND". Not in Excel 2016 or 2019.</span></div>
+      <div class="cheat-item"><b>INDEX/MATCH 0</b><span>=INDEX(return, MATCH(key, search, 0)). MATCH defaults to 1 on Microsoft's page; can return left.</span></div>
+      <div class="cheat-item"><b>A lookup is a left join</b><span>Every row stays, one match each, first match wins when the key repeats. Rows in = rows out.</span></div>
+      <div class="cheat-item"><b>Louder, not quieter</b><span>Never IFERROR(..., ""). Name the failure, then COUNTIFS it: 94 today, 0 before Monday.</span></div>
+    </div>
+  </section>
+
+  <div class="callout next">
+    <span class="nx-pill">Next session</span>
+    <p>Dev has a state column he can trust on every row that matched, and a count of 94 rows that did not. Session 3 finds out why: customer IDs stored as text, a trailing space TRIM can see and a nonbreaking space it cannot, and a delivery date column that is day-first text on every row, waiting to be read the wrong way round.</p>
+  </div>
+
+  <footer class="pagefoot">
+    <span>Session 2 of 6 · learn-excel-sheets-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="01-a-table-is-not-a-grid.html">← Prev: A table is not a grid</a> &nbsp;·&nbsp; <a href="03-types-that-lie.html">Next: Types that lie →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

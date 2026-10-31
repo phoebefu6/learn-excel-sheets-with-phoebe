@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Session 5 of 6. Where a spreadsheet stops being the right tool: the row and cell ceilings read at source, the better reasons to leave (work that repeats, work someone reviews, joins you cannot read), and what leaving looks like, worked on Ferncastle's Monday numbers.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="When to leave - learn excel and sheets with phoebe">
+<meta property="og:description" content="Session 5 of 6. Size is the weakest reason to leave a spreadsheet. Repetition, review and joins are better ones, and the audit numbers travel with you.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/courses/05-when-to-leave.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="When to leave - learn excel and sheets with phoebe">
+<meta name="twitter:description" content="Session 5 of 6. Row limits, cell limits, and the better reasons to move a build out of the grid.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-excel-sheets-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Session 5 · When to leave - learn excel and sheets with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-excel-sheets-with-phoebe</a> / Session 5 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Excel &amp; Sheets with Phoebe · Session 5 of 6</div>
+    <h1>When to <span class="accent">leave</span></h1>
+    <p class="sub">Dev's Monday numbers finally reconcile. The grain is known, the keys are clean, the dates mean what they say and the pivot counts orders, not payments. So the hard question is no longer how to build it in a spreadsheet, but whether it should still live in one. Tonight we read the two ceilings at source, find out why size is usually the weakest reason to move, and write the memo that hands a working build to SQL or a script without losing a single check on the way.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Deeper</span>
+      <span class="chip audience">Analysts who already live in a spreadsheet</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Limits, reasons, what leaving looks like</span>
+      <span class="a3" style="flex:5">18-40 · Build-along: the leave memo</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where we start</h2>
+    </div>
+    <p class="lede">The running case is constructed. Ferncastle is an invented online kitchenware shop; Imogen, its operations lead, wants revenue by customer state, orders per customer and the late-delivery share every Monday, and Dev, the analyst, has spent four sessions making those numbers right. The rows are not invented: they are real orders from the Brazilian E-Commerce Public Dataset by Olist, derived and masked, so every count on this page is computed from them. After session 4 Dev's build prints the truth: 1,508 orders, 1,370 customers, 1.101 orders per customer, R$ 80,469.61 of revenue in SP and a late share of 7.23%, with a control gap of R$ 0.00. Now he has to decide where that build lives next.</p>
+
+    <div class="legend">
+      <span class="pill">🎫 Clear all three quiz questions to stamp your passport</span>
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">★ Build-along = do it in your own sheet</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The two ceilings, quoted from the vendors' own pages rather than from memory; four questions (repeat, review, joins, size) that tell you whether to stay, move to SQL or move to a script; a picture of what the same Ferncastle answer looks like as a lookup chain and as one written join; and a leave memo for the Monday numbers with a checklist that carries every audited number into the next tool.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers limits read at source</span>
+      <h2>The ceilings, as the vendors state them</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">Every analyst has heard a number for "how big a spreadsheet can get", and most of those numbers are out of date. Read them at source. The two apps do not even measure the same thing: Excel caps each worksheet by rows and columns, Google Sheets caps the whole spreadsheet by cells or file size. That difference changes which files stop fitting.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 344" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two hand-drawn panels. Left: one Excel worksheet drawn as a grid, 16,384 columns wide, with a thick line at row 1,048,576, the last row; a thin hatched band at the top marks Ferncastle's 1,565 rows, not to scale, and dashed rows below the line have nowhere to go. Right: one Google Sheets spreadsheet with a ceiling of 20 million cells or 100MB, shown as two blocks of equal area: 200 columns by 100,000 rows, and 20 columns by 1,000,000 rows, both exactly 20 million cells.">
+        <defs>
+          <filter id="e5aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e5aHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e5aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e5aH { font: 800 12px Inter, system-ui, sans-serif; fill: #17221A; }
+          .e5aL { font: 600 12px Inter, system-ui, sans-serif; fill: #17221A; }
+          .e5aS { font: 400 11px Inter, system-ui, sans-serif; fill: #536356; }
+          .e5aB { font: 800 11px Inter, system-ui, sans-serif; fill: #5A4300; }
+          .e5aV { font: 800 16px Inter, system-ui, sans-serif; fill: #075C07; }
+          .e5aA { font: 700 11px Inter, system-ui, sans-serif; fill: #0B7F0A; }
+          .e5aN { font: 400 12px Inter, system-ui, sans-serif; fill: #536356; }
+          .e5aR { font: 800 12px Inter, system-ui, sans-serif; fill: #991B1B; }
+        </style>
+
+        <g filter="url(#e5aSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="46" width="380" height="256" rx="12" transform="rotate(-0.4 230 174)" fill="#EDF7EB" stroke="#0B7F0A"/>
+          <rect x="60" y="90" width="220" height="140" fill="#FFFFFF"/>
+          <rect x="60" y="90" width="220" height="16" fill="url(#e5aHc)"/>
+          <path d="M104 90 L104 230 M148 90 L148 230 M192 90 L192 230 M236 90 L236 230" stroke="#C3D1C4" stroke-width="1.4"/>
+          <path d="M60 124 L280 124 M60 142 L280 142 M60 160 L280 160 M60 178 L280 178 M60 196 L280 196 M60 214 L280 214" stroke="#C3D1C4" stroke-width="1.4"/>
+          <path d="M50 231 L290 231" stroke="#075C07" stroke-width="3.4"/>
+          <rect x="60" y="240" width="220" height="18" fill="#FFFFFF" stroke="#FCA5A5" stroke-dasharray="4 4"/>
+
+          <rect x="460" y="46" width="380" height="256" rx="12" transform="rotate(0.4 650 174)" fill="#FFFFFF"/>
+          <rect x="480" y="96" width="200" height="30" transform="rotate(-1 580 111)" fill="url(#e5aHc)"/>
+          <rect x="480" y="150" width="60" height="100" transform="rotate(1.2 510 200)" fill="url(#e5aHc)"/>
+        </g>
+
+        <text class="e5aH" x="30" y="30">TWO CEILINGS, MEASURED IN DIFFERENT UNITS</text>
+
+        <text class="e5aA" x="60" y="76">EXCEL · ONE WORKSHEET</text>
+        <text class="e5aL" x="296" y="103">1,565 rows</text>
+        <text class="e5aS" x="296" y="118">not to scale</text>
+        <text class="e5aV" x="296" y="226">1,048,576</text>
+        <text class="e5aS" x="296" y="242">the last row</text>
+        <text class="e5aR" x="296" y="260">no row 1,048,577</text>
+        <text class="e5aS" x="60" y="282">16,384 columns across, per worksheet</text>
+
+        <text class="e5aA" x="480" y="76">SHEETS · ONE SPREADSHEET</text>
+        <text class="e5aL" x="696" y="108">200 columns</text>
+        <text class="e5aS" x="696" y="124">x 100,000 rows</text>
+        <text class="e5aL" x="560" y="190">20 columns</text>
+        <text class="e5aS" x="560" y="206">x 1,000,000 rows</text>
+        <text class="e5aB" x="480" y="276">same ceiling: 20 million cells or 100MB</text>
+
+        <text class="e5aN" x="30" y="330">Limits read at source (Microsoft, Google Drive Help). The two right-hand shapes are arithmetic, not vendor examples.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - Excel stops a tall file at a fixed row; Sheets lets you trade width for height until the cell count runs out</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Two numbers, read where they are published<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Microsoft's "Excel specifications and limits" page gives the worksheet size as <strong>1,048,576 rows by 16,384 columns</strong>. That is per worksheet: a file with three tabs has three of those grids. Google Drive Help gives the Sheets limit as <strong>"Up to 20 million cells or 100MB"</strong> for spreadsheets created in or converted to Sheets. That is per spreadsheet, counted across its cells, so a wide file runs out of room in fewer rows than a narrow one. If you remember a figure of 10 million cells for Sheets, it is out of date; quote the 20 million figure, and quote the page.</p>
+        <p>Ferncastle's orders.csv is 1,565 rows across columns A to I. That is well under one percent of either ceiling. For a build like this one, the ceiling is not the problem; the things in the next part are. Knowing the ceiling still matters, for one reason: the day a file crosses it, nothing on the screen looks different.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What happens at the edge, and what we do not know<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The vendor pages state the ceilings. They are the source for how big a sheet can be, not for what each app does when you open a file that is bigger, and that behaviour is not recorded here, so do not teach it from memory either. What you can do without knowing it is check. Count the rows in the source before you import (the export's own row count, or a line count in a shell) and count them again in the sheet with <code>=COUNTA(A:A)</code>. If the two counts differ, the sheet is not holding the file, whatever the reason.</p>
+        <p>That is the same reconciliation habit from session 1, pointed at the import instead of the pivot. A control total does not care whether rows went missing because of a lookup, a filter or a ceiling. It only tells you that they did.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>A size limit nobody saw.</strong> Public Health England said in October 2020 that 15,841 positive COVID-19 cases between 25 September and 2 October "were not included" in reported figures, and gave the cause as "some files containing positive test results exceeded the maximum file size". Read the statement and notice what it does not say: it does not name Excel and it does not mention a row limit. Press reports did. The lesson that survives either reading is the one you can act on: a size ceiling dropped records, and the published number looked complete until it was reconciled.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers better reasons to leave than size</span>
+      <h2>Repeat, review, joins, then size</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">A spreadsheet is a superb place to find an answer once. It is a weaker place to produce the same answer every week, to let someone else check how you got it, or to hold a chain of lookups that is really a join nobody wrote down. Those three reasons arrive long before the row limit does. The four questions below are a working rule assembled here from the earlier sessions, not a vendor recommendation.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 412" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A decision tree. A start box, Monday numbers, leads to four questions asked in order: does it repeat every week, will someone else review it, does it join more than two tables, is it near a size ceiling. Each yes leads right to an outcome: a script whose steps rerun by themselves; SQL so the reviewer reads the join; SQL so every join is written once; SQL or a script so rows stay outside the grid. Four noes in a row lead down to: stay in the sheet. The first question is highlighted with the note that Ferncastle's numbers repeat every Monday.">
+        <defs>
+          <filter id="e5bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="67" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e5bHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e5bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e5bH { font: 800 12px Inter, system-ui, sans-serif; fill: #17221A; }
+          .e5bL { font: 600 12px Inter, system-ui, sans-serif; fill: #17221A; }
+          .e5bS { font: 400 11px Inter, system-ui, sans-serif; fill: #536356; }
+          .e5bB { font: 800 11px Inter, system-ui, sans-serif; fill: #5A4300; }
+          .e5bA { font: 700 11px Inter, system-ui, sans-serif; fill: #0B7F0A; }
+          .e5bW { font: 800 12px Inter, system-ui, sans-serif; fill: #FFFFFF; }
+          .e5bN { font: 400 12px Inter, system-ui, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e5bSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="30" y="58" width="130" height="44" rx="10" transform="rotate(-1.5 95 80)" fill="url(#e5bHc)"/>
+          <path d="M164 80 L202 80" marker-end="url(#e5bAr)"/>
+
+          <rect x="210" y="58" width="270" height="44" rx="10" transform="rotate(0.6 345 80)" fill="#FFD84D"/>
+          <rect x="210" y="128" width="270" height="44" rx="10" transform="rotate(-0.5 345 150)" fill="#FFFFFF"/>
+          <rect x="210" y="198" width="270" height="44" rx="10" transform="rotate(0.4 345 220)" fill="#FFFFFF"/>
+          <rect x="210" y="268" width="270" height="44" rx="10" transform="rotate(-0.6 345 290)" fill="#FFFFFF"/>
+          <rect x="210" y="338" width="270" height="40" rx="10" transform="rotate(0.5 345 358)" fill="#0B7F0A" stroke="#075C07"/>
+
+          <path d="M345 104 L345 124" marker-end="url(#e5bAr)"/>
+          <path d="M345 174 L345 194" marker-end="url(#e5bAr)"/>
+          <path d="M345 244 L345 264" marker-end="url(#e5bAr)"/>
+          <path d="M345 314 L345 334" marker-end="url(#e5bAr)"/>
+
+          <path d="M484 80 L594 80" marker-end="url(#e5bAr)"/>
+          <path d="M484 150 L594 150" marker-end="url(#e5bAr)"/>
+          <path d="M484 220 L594 220" marker-end="url(#e5bAr)"/>
+          <path d="M484 290 L594 290" marker-end="url(#e5bAr)"/>
+
+          <rect x="600" y="58" width="250" height="44" rx="10" transform="rotate(0.8 725 80)" fill="#EDF7EB"/>
+          <rect x="600" y="128" width="250" height="44" rx="10" transform="rotate(-0.7 725 150)" fill="#EDF7EB"/>
+          <rect x="600" y="198" width="250" height="44" rx="10" transform="rotate(0.6 725 220)" fill="#EDF7EB"/>
+          <rect x="600" y="268" width="250" height="44" rx="10" transform="rotate(-0.5 725 290)" fill="#EDF7EB"/>
+        </g>
+
+        <text class="e5bH" x="30" y="30">FOUR QUESTIONS, ASKED IN THIS ORDER</text>
+        <text class="e5bL" x="95" y="85" text-anchor="middle">Monday numbers</text>
+
+        <text class="e5bL" x="226" y="78">Does it repeat every week?</text>
+        <text class="e5bB" x="226" y="94">Ferncastle: yes, every Monday</text>
+        <text class="e5bL" x="226" y="155">Will someone else review it?</text>
+        <text class="e5bL" x="226" y="225">Does it join more than two tables?</text>
+        <text class="e5bL" x="226" y="295">Is it near a size ceiling?</text>
+        <text class="e5bW" x="345" y="363" text-anchor="middle">Stay in the sheet</text>
+
+        <text class="e5bS" x="354" y="119">no</text>
+        <text class="e5bS" x="354" y="189">no</text>
+        <text class="e5bS" x="354" y="259">no</text>
+        <text class="e5bS" x="354" y="329">no</text>
+
+        <text class="e5bA" x="528" y="72">yes</text>
+        <text class="e5bA" x="528" y="142">yes</text>
+        <text class="e5bA" x="528" y="212">yes</text>
+        <text class="e5bA" x="528" y="282">yes</text>
+
+        <text class="e5bL" x="616" y="78">Script</text>
+        <text class="e5bS" x="616" y="94">the steps rerun by themselves</text>
+        <text class="e5bL" x="616" y="148">SQL</text>
+        <text class="e5bS" x="616" y="164">the reviewer reads the join</text>
+        <text class="e5bL" x="616" y="218">SQL</text>
+        <text class="e5bS" x="616" y="234">every join written once</text>
+        <text class="e5bL" x="616" y="288">SQL or a script</text>
+        <text class="e5bS" x="616" y="304">rows stay outside the grid</text>
+
+        <text class="e5bN" x="30" y="400">A working rule assembled here, not a vendor claim. Size is asked last because it is usually the last to bite.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the Monday build leaves at the first question, long before any ceiling; a one-off answer that nobody reviews can stay in the grid for good</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Repetition and review are the real triggers<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Count what Dev does each Monday. Import two files. Clean the customer IDs with <code>VALUE(TRIM())</code>. Rebuild the delivery dates with <code>DATE(RIGHT, MID, LEFT)</code>. Look up the state with an exact lookup. Fill the running count. Refresh the pivot with the first-row filter. Check the control gap. Seven manual steps, most of which guarded against a trap found in sessions 1 to 4, and each of which can be skipped by a tired person at 08:50 on a Monday without the sheet noticing. A script or a stored query runs the same seven steps the same way every time.</p>
+        <p>Review is the second trigger. Imogen cannot review Dev's build by reading it; she would have to click into every helper column and reconstruct the logic from cell references. When someone else has to sign off on how a number was made, the steps need to be written somewhere a person reads top to bottom. That is what SQL and scripts are, before they are anything else: the method written down.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>A lookup chain is a join you cannot read<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session 2 showed that every lookup is a left join you made without writing the word: each order row keeps its row and picks up one customer, and when the key repeats, the first match wins. One lookup is easy to hold in your head. Three tables means two lookups, plus the cleaning columns each key needs, plus the decision about which side's duplicates matter. By then the join exists only as a pattern of cell references spread across columns, and the rule "first match wins" is applied silently at every one.</p>
+        <p>Joining more than two tables is where the third question in the tree fires. The written form of the same join names both tables, names the key, and makes "what happens when nothing matches" a choice someone typed rather than a default nobody saw. Ferncastle's Monday numbers need only orders and customers, one join, so on this question alone Dev could stay. He is leaving for the first two reasons.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>A manual process, copied by hand.</strong> JPMorgan's 2013 management task force on the "London Whale" losses is reported to describe a value-at-risk spreadsheet that "divided by their sum instead of their average", after a process that involved copying and pasting data by hand. The report itself was not read here, so treat the detail as reported. The pattern is the one in the tree: a calculation repeated on a schedule, by hand, with no written method a reviewer could read, is exactly the work that should have left the grid first.</p>
+    </div>
+  </section>
+
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers what leaving looks like</span>
+      <h2>The same question, written down</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">Leaving a spreadsheet does not mean throwing away what you learned in it. The grain sentence, the clean keys, the day-first dates, the one-row-per-order rule and the reconciliation all travel. What changes is where the method lives: in cells you click, or in lines you read. No SQL is taught tonight; the point is to see the shape of the move.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels side by side. Left, as a lookup chain: four stacked cells, each depending on the one above: J first_row with COUNTIFS of A dollar 2 to A2, K clean_id with VALUE of TRIM of C2, L state with XLOOKUP of K2 into the customers table, and a pivot filtered on J equals 1 with rows L and the sum of I; they lead to a highlighted cell, SP R$ 80,469.61. Right, as one written join: an orders table and a customers table joined on customer_id, and a four-line recipe: join orders to customers on customer_id, clean the key on both sides first, keep one row per order, group by state and sum order_value; it leads to the same highlighted cell, SP R$ 80,469.61.">
+        <defs>
+          <filter id="e5cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="71" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e5cHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e5cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e5cH { font: 800 12px Inter, system-ui, sans-serif; fill: #17221A; }
+          .e5cL { font: 600 12px Inter, system-ui, sans-serif; fill: #17221A; }
+          .e5cS { font: 400 11px Inter, system-ui, sans-serif; fill: #536356; }
+          .e5cA { font: 700 11px Inter, system-ui, sans-serif; fill: #0B7F0A; }
+          .e5cV { font: 800 16px Inter, system-ui, sans-serif; fill: #075C07; }
+          .e5cN { font: 400 12px Inter, system-ui, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e5cSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="30" y="40" width="400" height="300" rx="12" transform="rotate(-0.3 230 190)" fill="#FFFFFF"/>
+          <rect x="50" y="80" width="260" height="36" rx="4" transform="rotate(-1 180 98)" fill="#EDF7EB"/>
+          <rect x="50" y="132" width="260" height="36" rx="4" transform="rotate(0.8 180 150)" fill="#EDF7EB"/>
+          <rect x="50" y="184" width="260" height="36" rx="4" transform="rotate(-0.7 180 202)" fill="#EDF7EB"/>
+          <rect x="50" y="236" width="260" height="36" rx="4" transform="rotate(1 180 254)" fill="#EDF7EB"/>
+          <path d="M296 118 L296 130" marker-end="url(#e5cAr)"/>
+          <path d="M296 170 L296 182" marker-end="url(#e5cAr)"/>
+          <path d="M296 222 L296 234" marker-end="url(#e5cAr)"/>
+          <path d="M125 274 L125 286" marker-end="url(#e5cAr)"/>
+          <rect x="50" y="292" width="170" height="32" rx="4" transform="rotate(-0.6 135 308)" fill="#FFD84D"/>
+
+          <rect x="450" y="40" width="400" height="300" rx="12" transform="rotate(0.3 650 190)" fill="#FFFFFF"/>
+          <rect x="470" y="84" width="120" height="52" rx="6" transform="rotate(-1.4 530 110)" fill="url(#e5cHc)"/>
+          <rect x="710" y="84" width="120" height="52" rx="6" transform="rotate(1.2 770 110)" fill="#FFFFFF"/>
+          <path d="M594 112 L706 112" stroke="#0B7F0A" stroke-width="2.6"/>
+          <rect x="470" y="156" width="360" height="110" rx="8" transform="rotate(-0.4 650 211)" fill="#EDF7EB"/>
+          <path d="M545 268 L545 286" marker-end="url(#e5cAr)"/>
+          <rect x="470" y="292" width="170" height="32" rx="4" transform="rotate(0.6 555 308)" fill="#FFD84D"/>
+        </g>
+
+        <text class="e5cH" x="30" y="26">ONE FERNCASTLE ANSWER, TWO PLACES FOR THE METHOD</text>
+
+        <text class="e5cA" x="50" y="66">AS A LOOKUP CHAIN</text>
+        <text class="e5cL" x="64" y="96">J  first_row</text>
+        <text class="e5cS" x="64" y="110">=COUNTIFS(A$2:A2, A2)</text>
+        <text class="e5cL" x="64" y="148">K  clean_id</text>
+        <text class="e5cS" x="64" y="162">=VALUE(TRIM(C2))</text>
+        <text class="e5cL" x="64" y="200">L  state</text>
+        <text class="e5cS" x="64" y="214">=XLOOKUP(K2, customers!A:A, ...)</text>
+        <text class="e5cL" x="64" y="252">pivot</text>
+        <text class="e5cS" x="64" y="266">filter J = 1, rows L, sum of I</text>
+        <text class="e5cS" x="324" y="152">the join lives</text>
+        <text class="e5cS" x="324" y="168">in four cells</text>
+        <text class="e5cS" x="324" y="184">you click into</text>
+        <text class="e5cV" x="62" y="314">SP R$ 80,469.61</text>
+
+        <text class="e5cA" x="470" y="66">AS ONE WRITTEN JOIN</text>
+        <text class="e5cL" x="484" y="108">orders</text>
+        <text class="e5cS" x="484" y="124">1,565 rows</text>
+        <text class="e5cL" x="724" y="108">customers</text>
+        <text class="e5cS" x="724" y="124">1,370 rows</text>
+        <text class="e5cS" x="606" y="104">on customer_id</text>
+        <text class="e5cL" x="486" y="182">1  join orders to customers on customer_id</text>
+        <text class="e5cL" x="486" y="206">2  clean the key on both sides first</text>
+        <text class="e5cL" x="486" y="230">3  keep one row per order</text>
+        <text class="e5cL" x="486" y="254">4  group by state, sum order_value</text>
+        <text class="e5cV" x="482" y="314">SP R$ 80,469.61</text>
+
+        <text class="e5cN" x="30" y="370">Same rows, same answer. On the left a reviewer clicks four cells; on the right they read four lines.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - nothing about the answer changes when the method moves; what changes is whether a second person can read how it was made</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Hand over, do not reteach<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Writing joins down is a discipline of its own, and it has its own home. <a href="https://phoebefu6.github.io/learn-sql-with-phoebe/">Learn SQL with Phoebe ↗</a> owns querying: joins with the key named, what happens to unmatched rows chosen on purpose, grouping and summing in one readable statement. <a href="https://phoebefu6.github.io/learn-python-data-analysis-with-phoebe/">Learn Python Data Analysis with Phoebe ↗</a> owns the script route with pandas, for work that also needs files fetched, cleaned and saved on a schedule. Take this session's four questions to either one; they decide which you need, not how to write it.</p>
+        <p>There is a halfway house inside Google Sheets. Google's help page describes the <code>QUERY</code> function as one that "Runs a Google Visualization API Query Language query across data". It exists only in Sheets, and it is mentioned here so you recognise it, not taught: if you find yourself writing long QUERY strings that someone else must review, the third question in the tree has already fired.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The same three questions in a shell<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ferncastle's rows are not locked inside a spreadsheet. The same orders.csv, customers.csv and items.csv ship with <a href="https://phoebefu6.github.io/learn-command-line-with-phoebe/">Learn the Command Line with Phoebe ↗</a>, which answers Imogen's three questions (revenue by state, orders per customer, late share) with pipes instead of formulas. The files hold exactly the rows behind every number on these pages, so the truth does not change with the tool: 1,508 orders, R$ 80,469.61 in SP, 7.23% late.</p>
+        <p>Working the same question in two tools is the fastest way to learn what each one hides. A shell will not pad an ID with zeros for you or guess a date format, so the type traps show up early. A spreadsheet shows every row at once, so the grain is easier to see. Neither is the right tool for everything; the questions in Part 2 tell you which one fits the job in front of you.</p>
+      </div>
+    </details>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The numbers that make a move safe.</strong> Ferncastle's audited build prints R$ 207,300.84 of total revenue and a control gap of R$ 0.00 on 1,508 orders. Those two figures, computed from the shipped rows, are the acceptance test for any replacement: a SQL query or a script that prints anything else has not reproduced the build yet, however tidy it looks. Moving tools without a target number to hit is how a working answer turns back into a plausible one.</p>
+    </div>
+  </section>
+
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Build-along</span>
+      <h2>Write the leave memo for Ferncastle's Monday numbers</h2>
+      <span class="tag demo">★ 22 min · everyone builds</span>
+    </div>
+    <p class="lede">Open your cleaned copy of Ferncastle's orders.csv from sessions 1 to 4 (the CSVs are downloadable from session 1) in Excel or Google Sheets, with the running count in column J. Dev writes a one-page memo answering the four questions, makes a call, and attaches the checklist that the next tool must pass. The counts are computed from the shipped rows; the memo's judgement calls are Dev's, and yours may differ.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Left, a card of the audited rung-5 numbers that are expected from any tool: orders 1,508, customers 1,370, orders per customer 1.101, revenue SP R$ 80,469.61, total revenue R$ 207,300.84, late share 7.23 percent, 109 orders, and a highlighted control gap of R$ 0.00. A hand-drawn arrow carries them to the right, a checklist for the next tool: key cleaned on both sides, dates read day-first, one row per order before summing, unmatched rows counted and equal to zero, every number on the left matches, and the gap is R$ 0.00 or the build does not ship.">
+        <defs>
+          <filter id="e5dSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="79" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="e5dHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0B7F0A" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="e5dAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#17221A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .e5dL { font: 600 12px Inter, system-ui, sans-serif; fill: #17221A; }
+          .e5dS { font: 400 11px Inter, system-ui, sans-serif; fill: #536356; }
+          .e5dA { font: 700 11px Inter, system-ui, sans-serif; fill: #0B7F0A; }
+          .e5dV { font: 800 16px Inter, system-ui, sans-serif; fill: #075C07; }
+          .e5dB { font: 800 11px Inter, system-ui, sans-serif; fill: #5A4300; }
+          .e5dN { font: 400 12px Inter, system-ui, sans-serif; fill: #536356; }
+        </style>
+
+        <g filter="url(#e5dSk)" fill="none" stroke="#17221A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="40" y="46" width="360" height="234" rx="12" transform="rotate(-0.5 220 163)" fill="#EDF7EB"/>
+          <rect x="238" y="230" width="136" height="26" rx="3" fill="#FFD84D"/>
+          <path d="M408 150 C430 128, 452 128, 472 150" marker-end="url(#e5dAr)"/>
+          <rect x="480" y="46" width="360" height="234" rx="12" transform="rotate(0.5 660 163)" fill="#FFFFFF"/>
+          <rect x="500" y="98" width="12" height="12" rx="2" fill="#FFFFFF"/>
+          <rect x="500" y="126" width="12" height="12" rx="2" fill="#FFFFFF"/>
+          <rect x="500" y="154" width="12" height="12" rx="2" fill="#FFFFFF"/>
+          <rect x="500" y="182" width="12" height="12" rx="2" fill="#FFFFFF"/>
+          <rect x="500" y="210" width="12" height="12" rx="2" fill="#FFFFFF"/>
+          <rect x="500" y="238" width="12" height="12" rx="2" fill="#FFFFFF"/>
+        </g>
+
+        <text class="e5dA" x="60" y="80">THE RUNG-5 NUMBERS, EXPECTED</text>
+        <text class="e5dL" x="60" y="106">orders</text>
+        <text class="e5dL" x="248" y="106">1,508</text>
+        <text class="e5dL" x="60" y="128">customers</text>
+        <text class="e5dL" x="248" y="128">1,370</text>
+        <text class="e5dL" x="60" y="150">orders per customer</text>
+        <text class="e5dL" x="248" y="150">1.101</text>
+        <text class="e5dL" x="60" y="172">revenue SP</text>
+        <text class="e5dL" x="248" y="172">R$ 80,469.61</text>
+        <text class="e5dL" x="60" y="194">total revenue</text>
+        <text class="e5dL" x="248" y="194">R$ 207,300.84</text>
+        <text class="e5dL" x="60" y="216">late share</text>
+        <text class="e5dS" x="136" y="216">(109 of 1,508)</text>
+        <text class="e5dL" x="248" y="216">7.23%</text>
+        <text class="e5dL" x="60" y="248">control gap</text>
+        <text class="e5dV" x="248" y="249">R$ 0.00</text>
+
+        <text class="e5dA" x="500" y="80">THE SAME CHECKS IN THE NEXT TOOL</text>
+        <text class="e5dL" x="522" y="109">key cleaned on both sides</text>
+        <text class="e5dL" x="522" y="137">dates read day-first</text>
+        <text class="e5dL" x="522" y="165">one row per order before summing</text>
+        <text class="e5dL" x="522" y="193">unmatched rows counted: 0</text>
+        <text class="e5dL" x="522" y="221">every number on the left matches</text>
+        <text class="e5dB" x="522" y="249">gap is R$ 0.00 or it does not ship</text>
+
+        <text class="e5dN" x="30" y="306">Rung-5 numbers computed from Ferncastle's rows (constructed case, derived Olist rows). Your sheet should print the same.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the tool changes, the target numbers do not; a replacement build is finished when it prints every number on the left</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <p><strong>Count what the build holds.</strong> Start the memo with the size facts, measured rather than remembered. Rows from session 1's COUNTA, distinct orders from the running count in column J.</p>
+        <div class="prompt-box good"><span class="label">★ Step 1 · size, both apps</span>Rows:             =COUNTA(A2:A1566)          -&gt; 1565
+Distinct orders:  =COUNTIFS(J2:J1566, 1)     -&gt; 1508
+Customers file:   1,370 rows (one per customer)</div>
+      </div>
+      <div class="step">
+        <p><strong>Measure the headroom against each ceiling.</strong> Both formulas run in both apps; what they mean depends on the app. The first compares the column with Excel's last row, the second counts the cells the file occupies for the Sheets limit. orders.csv spans A to I.</p>
+        <div class="prompt-box good"><span class="label">★ Step 2 · headroom</span>Excel rows:   =COUNTA(A:A)/1048576                        -&gt; 0.0015  (about 0.15%)
+Sheets cells: =ROWS(A1:I1566)*COLUMNS(A1:I1566)           -&gt; 14094
+              =ROWS(A1:I1566)*COLUMNS(A1:I1566)/20000000  -&gt; 0.0007  (about 0.07%)
+Memo line:    size is not a reason to leave</div>
+      </div>
+      <div class="step">
+        <p><strong>Answer question one: does it repeat?</strong> List every manual step of the Monday run in order. If a step would be skipped by someone in a hurry without the sheet noticing, mark it.</p>
+        <div class="prompt-box good"><span class="label">★ Step 3 · what repeats</span>Every Monday:
+1  import orders.csv and customers.csv
+2  clean customer_id        =VALUE(TRIM(C2))
+3  rebuild delivered_date   =DATE(RIGHT(E2,4), MID(E2,4,2), LEFT(E2,2))
+4  look up state, exact     (XLOOKUP or INDEX/MATCH with 0)
+5  fill the running count   =COUNTIFS(A$2:A2, A2)
+6  refresh the pivot, filter J = 1
+7  check the control gap    (must be R$ 0.00)
+Answer: yes, 7 manual steps, every week</div>
+      </div>
+      <div class="step">
+        <p><strong>Answer questions two and three: review and joins.</strong> Name the reviewer and what they need to see. Then count the tables the three numbers actually use; items.csv is not needed for any of them.</p>
+        <div class="prompt-box good"><span class="label">★ Step 4 · review and joins</span>Reviewer:  Imogen, every week, before the numbers go out
+She needs: the method in reading order, not cell references
+Tables:    orders + customers  (items not used)
+Joins:     1  (orders.customer_id -&gt; customers.customer_id)
+Answer:    review yes; joins no (two tables, not more)</div>
+      </div>
+      <div class="step">
+        <p><strong>Make the call and say why.</strong> Walk the tree from Part 2 with your four answers. Write the verdict in one sentence and the reason in another. This is Dev's call for a constructed case; a team with no SQL access might pick the script route instead, and that is a fair answer too.</p>
+        <div class="prompt-box good"><span class="label">★ Step 5 · the verdict</span>Repeat? yes   Review? yes   Joins &gt; 2? no   Size? no
+Verdict:  move the Monday build to SQL; the sheet becomes the
+          reading copy Imogen opens, not the place it is built
+Why:      it repeats weekly and someone else signs it off,
+          so the method has to be written where she can read it</div>
+      </div>
+      <div class="step">
+        <p><strong>Attach the audit checklist.</strong> Copy the rung-5 numbers into the memo as the acceptance test. The new build is not done until it prints every one of them, with the same checks the spreadsheet needed. Session 6 shows that the audited rung cleans the customers table side too, which is why the first line says both sides.</p>
+        <div class="prompt-box good"><span class="label">★ Step 6 · carry the audit across</span>[ ] key cleaned on BOTH sides (orders and customers)
+[ ] delivered_date parsed day-first, never by the computer's setting
+[ ] one row per order before any sum      -&gt; 1508 orders
+[ ] unmatched rows counted, not hidden     -&gt; 0
+[ ] customers 1370, orders per customer    -&gt; 1.101
+[ ] revenue SP 80469.61, total 207300.84
+[ ] late share 7.23% (109 of 1508)
+[ ] control gap                            -&gt; 0.00, or it does not ship</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>Keep the spreadsheet as the reference build.</strong> Do not delete it the day the query works. Run both for a few Mondays and compare every number on the checklist. When they agree week after week, the sheet can retire; when they disagree, you have a reconciliation to do, and now you know how.</p>
+    </div>
+  </section>
+
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Before session 6</h2>
+      <span class="tag exercise">30 min</span>
+    </div>
+    <ol>
+      <li><strong>Run the four questions on one build of your own.</strong> A report you produce on a schedule. Write one line per question (repeat, review, joins, size) and the verdict the tree gives. Bring any case where your gut and the tree disagree.</li>
+      <li><strong>Measure your biggest file's headroom.</strong> Rows against 1,048,576 if it lives in Excel, cells against 20 million if it lives in Sheets. Write the percentage in your notes next to the file's name.</li>
+      <li><strong>Count the hidden joins.</strong> In a workbook you inherited, list every lookup column and the table it reaches into. If the list names more than two tables, sketch the written join as four plain-language lines, like the right panel in Part 3.</li>
+      <li><strong>Write an acceptance test.</strong> For one number you hand over regularly, write the two or three control totals any replacement build would have to match, with today's values.</li>
+    </ol>
+  </section>
+
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+    <p>Clear all three and session 5 gets stamped in your passport.</p>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · What does Google Drive Help give as the size limit for a spreadsheet created in or converted to Google Sheets?</p>
+      <button class="qopt" type="button">A · 10 million cells</button>
+      <button class="qopt" type="button">B · 1,048,576 rows by 16,384 columns</button>
+      <button class="qopt" type="button">C · Up to 20 million cells or 100MB</button>
+      <button class="qopt" type="button">D · There is no limit</button>
+      <p class="qwhy">The 10 million figure is out of date, and 1,048,576 by 16,384 is Excel's per-worksheet limit from Microsoft's specifications page. Sheets counts cells across the spreadsheet, so a wide file reaches the ceiling in fewer rows than a narrow one.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · Ferncastle's orders.csv has 1,565 rows and the Monday numbers use two tables. Which is the strongest reason to move the build out of the spreadsheet?</p>
+      <button class="qopt" type="button">A · The file is close to the row limit</button>
+      <button class="qopt" type="button">B · It repeats every week and Imogen has to review how the numbers were made</button>
+      <button class="qopt" type="button">C · It joins more than two tables</button>
+      <button class="qopt" type="button">D · Spreadsheets always produce wrong numbers</button>
+      <p class="qwhy">1,565 rows is about 0.15% of Excel's rows, and the three numbers need only orders and customers, one join. What fires is repetition (seven manual steps every Monday) and review (a second person must read the method). The audited spreadsheet is correct; the problem is keeping it correct and readable every week.</p>
+    </div>
+
+    <div class="quiz-q" data-answer="3">
+      <p class="qtext">3 · What did Public Health England's October 2020 statement give as the cause of 15,841 cases not being included?</p>
+      <button class="qopt" type="button">A · Excel's 1,048,576-row limit</button>
+      <button class="qopt" type="button">B · A VLOOKUP left on approximate match</button>
+      <button class="qopt" type="button">C · Dates parsed month-first</button>
+      <button class="qopt" type="button">D · Some files containing positive test results exceeded the maximum file size; the statement does not name Excel</button>
+      <p class="qwhy">Press reports named Excel and a row limit; the statement itself names only a maximum file size. Quote sources for what they say. The usable lesson holds either way: a size ceiling dropped records and the published figure looked complete until it was reconciled.</p>
+    </div>
+
+    <p class="quiz-score"></p>
+  </section>
+
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Sources covered</span>
+      <h2>What this session teaches, and where it came from</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Microsoft Support: Excel specifications and limits</span><span class="note">Worksheet size "1,048,576 rows by 16,384 columns", read at source</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google Drive Help: Files you can store in Google Drive (size limits)</span><span class="note">Sheets "Up to 20 million cells or 100MB" for spreadsheets created in or converted to Sheets; the older 10 million figure is out of date</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Google Docs Editors Help: QUERY function</span><span class="note">"Runs a Google Visualization API Query Language query across data"; Sheets only, mentioned and not taught</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Public Health England (5 October 2020). PHE statement on delayed reporting of COVID-19 cases</span><span class="note">15,841 cases not included; cause stated as files that "exceeded the maximum file size". Excel and a row limit appear only in press reports</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">JPMorgan Chase &amp; Co. Management Task Force Regarding 2012 CIO Losses (16 January 2013)</span><span class="note">Reported: the VaR spreadsheet "divided by their sum instead of their average" after a manual copy-paste process; the report was not read here</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">The four questions (repeat, review, joins, size) and the leave memo</span><span class="note">A working rule assembled here from sessions 1 to 4, not a vendor recommendation; every Ferncastle count on the page is computed from the shipped rows</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Ferncastle, Imogen and Dev</span><span class="note">Constructed for teaching; the orders are derived from Olist (CC BY-NC-SA 4.0), the people and the shop are not real</span></div>
+    </div>
+    <p class="mono" style="margin-top:14px">Every fact on this page, and its verification tier, is recorded in the course's source map.</p>
+  </section>
+
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 5 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Excel ceiling</b><span>1,048,576 rows by 16,384 columns, per worksheet. Read it on Microsoft's specifications page.</span></div>
+      <div class="cheat-item"><b>Sheets ceiling</b><span>Up to 20 million cells or 100MB, per spreadsheet. Width trades for height. Not 10 million.</span></div>
+      <div class="cheat-item"><b>Four questions, in order</b><span>Repeats? Reviewed? More than two tables? Near a ceiling? Any yes is a reason to leave.</span></div>
+      <div class="cheat-item"><b>Size is the weakest reason</b><span>Ferncastle: about 0.15% of Excel's rows, and it still leaves, because it repeats and is reviewed.</span></div>
+      <div class="cheat-item"><b>A lookup chain is a join</b><span>Write it down where a reviewer reads it: SQL for joins, a script for repeated file work.</span></div>
+      <div class="cheat-item"><b>The audit travels</b><span>1,508 orders, SP R$ 80,469.61, 7.23% late, gap R$ 0.00. The new build must print them all.</span></div>
+    </div>
+  </section>
+
+  <div class="callout next">
+    <span class="nx-pill">Next session</span>
+    <p>Dev's memo names every check the next tool must pass. Session 6 puts all of them on one bench: the Ferncastle questions run through the ladder from naive to audited, with approximate match forced on as an anti-lever and a break button that stores one customer ID as text, so you can watch each check catch what it was built to catch.</p>
+  </div>
+
+  <footer class="pagefoot">
+    <span>Session 5 of 6 · learn-excel-sheets-with-phoebe · by Phoebe Fu &nbsp;·&nbsp; 📚 <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a></span>
+    <span><a href="04-pivots-and-what-they-hide.html">← Prev: Pivots and what they hide</a> &nbsp;·&nbsp; <a href="06-the-formula-audit-bench.html">Next: The formula-audit bench →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>
